@@ -11,7 +11,8 @@ export function money(value: number, currency = "USD") {
 
 export function ProductCard({ product }: { product: any }) {
   const cart = useCart();
-  const oldPrice = Number(product.compareAtPrice || 0);
+  const basePrice = Number(product.basePrice ?? product.price);
+  const oldPrice = Number(product.compareAtPrice || 0) > Number(product.price) ? Number(product.compareAtPrice) : basePrice;
   const sale = oldPrice > Number(product.price);
   return (
     <article className="product-card">
@@ -25,7 +26,7 @@ export function ProductCard({ product }: { product: any }) {
         <Link href={`/product/${product.slug}`} className="product-title">{product.title}</Link>
         <p className="product-desc">{product.shortDescription || "Instant access to a digital essential."}</p>
         <div className="product-bottom">
-          <div><strong className="product-price">{money(Number(product.price), product.currency)}</strong>{sale && <del className="product-old-price">{money(oldPrice, product.currency)}</del>}</div>
+          <div><strong className="product-price">{money(Number(product.price), product.currency)}</strong>{sale && <del className="product-old-price">{money(oldPrice, product.currency)}</del>}{product.personalDiscountPercent>0&&<small className="personal-discount-pill">-{product.personalDiscountPercent}% member price</small>}</div>
           <button className="icon-button add-cart" aria-label="Add to cart" onClick={() => cart.add({ productId: product._id, title: product.title, slug: product.slug, image: product.image, price: Number(product.price), currency: product.currency || "USD" })}><ShoppingCart size={17}/></button>
         </div>
       </div>
