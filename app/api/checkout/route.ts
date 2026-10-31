@@ -90,9 +90,9 @@ export async function POST(request: NextRequest) {
       throw error;
     }
     if (debitedUser) await WalletTransaction.create({ userId: user._id, type: "debit", amount: total, balanceAfter: debitedUser.walletBalance, reference: order.orderNumber, note: "Payment for digital order" });
-    if (coupon) await Coupon.updateOne({ _id: coupon._id }, { $inc: { usedCount: 1 } });
 
     if (paymentMethod === "wallet") {
+      if (coupon) await Coupon.updateOne({ _id: coupon._id }, { $inc: { usedCount: 1 } });
       await Product.updateMany({ _id: { $in: products.map((p: any) => p._id) } }, { $inc: { salesCount: 1 } });
       const fulfilled = await fulfillOrder(String(order._id));
       await notify({ userId: user._id, title: "Order placed successfully", body: `Your order ${order.orderNumber} has been paid using your wallet.`, type: "payment", href: `/orders/${order._id}` });
