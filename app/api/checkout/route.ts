@@ -44,14 +44,23 @@ export async function POST(request: NextRequest) {
       const now = new Date();
       if (!coupon || (coupon.startsAt && coupon.startsAt > now) || (coupon.endsAt && coupon.endsAt < now) || (coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) || subtotal < coupon.minOrder) return NextResponse.json({ error: "This coupon is invalid, expired, or not eligible." }, { status: 400 });
       if (coupon.targetType === "users" && !coupon.targetIds.some((id: any) => String(id) === user._id)) return NextResponse.json({ error: "This coupon is not assigned to your account." }, { status: 403 });
-      if (coupon.targetType === "products" && !items.some((item: any) => coupon.targetIds.some((id: any) => String(id) === String(item.productId)))) return NextResponse.json({ error: "This coupon does not apply to these products." }, { status: 400 });
-      if (coupon.targetType === "categories") {
-        const selected = await Product.find({ _id: { $in: items.map((item: any) => item.productId) } }).select("categoryId");
-        if (!selected.some((p: any) => coupon.targetIds.some((id: any) => String(id) === String(p.categoryId)))) return NextResponse.json({ error: "This coupon does not apply to these products." }, { status: 400 });
+      let eligibleSubtotal = subtotal;
+      if (coupon.targetType === "products") {
+        const targetIds = new Set(coupon.targetIds.map((id: any) => String(id)));
+        const eligible = items.filter((item: any) => targetIds.has(String(item.productId)));
+        if (!eligible.length) return NextResponse.json({ error: "This coupon does not apply to these products." }, { status: 400 });
+        eligibleSubtotal = roundMoney(eligible.reduce((sum: number, item: any) => sum + item.unitPrice * item.quantity, 0));
       }
-      discount = coupon.discountType === "percentage" ? subtotal * coupon.value / 100 : coupon.value;
+      if (coupon.targetType === "categories") {
+        const selected = await Product.find({ _id: { $in: items.map((item: any) => item.productId) } }).select("_id categoryId");
+        const matchingProductIds = new Set(selected.filter((p: any) => coupon.targetIds.some((id: any) => String(id) === String(p.categoryId))).map((p: any) => String(p._id)));
+        const eligible = items.filter((item: any) => matchingProductIds.has(String(item.productId)));
+        if (!eligible.length) return NextResponse.json({ error: "This coupon does not apply to these products." }, { status: 400 });
+        eligibleSubtotal = roundMoney(eligible.reduce((sum: number, item: any) => sum + item.unitPrice * item.quantity, 0));
+      }
+      discount = coupon.discountType === "percentage" ? eligibleSubtotal * coupon.value / 100 : coupon.value;
       if (coupon.maxDiscount > 0) discount = Math.min(discount, coupon.maxDiscount);
-      discount = roundMoney(Math.min(discount, subtotal));
+      discount = roundMoney(Math.min(discount, eligibleSubtotal));
     }
     const total = roundMoney(subtotal - discount);
     const paymentMethod = ["wallet", "manual", "stripe"].includes(body.paymentMethod) ? body.paymentMethod : "manual";

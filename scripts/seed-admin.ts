@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import { loadEnvConfig } from "@next/env";
+
+loadEnvConfig(process.cwd());
 import bcrypt from "bcryptjs";
 import { User, Category } from "../lib/models";
 

@@ -18,7 +18,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "stripe": "^18.5.0",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "@next/env": "^15.5.4"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
