@@ -25,6 +25,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       const response = await fetch(`/api/auth/${mode}`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name,email,password,confirmPassword}) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Something went wrong.");
+      if (mode === "register" && data.verificationRequired) { setVerificationSent(true); return; }
       const next = params.get("next") || (data.user?.role === "admin" ? "/admin" : "/account");
       router.push(next); router.refresh();
     } catch(err:any) { setError(err.message); } finally { setBusy(false); }
@@ -38,7 +39,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       {mode === "register" && <label className="field"><span>{t("confirmPassword")}</span><div className="input-wrap"><LockKeyhole size={17}/><input type="password" required minLength={8} value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} placeholder={t("confirmPasswordPlaceholder")}/></div></label>}\n      {error && <div className="form-error">{error}</div>}
       <button disabled={busy} className="button button-primary button-wide">{busy ? t("pleaseWait") : mode==="login" ? t("signIn") : t("createAccountButton")} <ArrowRight size={17}/></button>
     </form>
-    <div className="auth-switch">{mode==="login" ? <><Link href="/forgot-password">{t("forgotPassword")}</Link><br/>{t("newHere")} <Link href="/register">Create an account</Link></> : <>{t("alreadyHaveAccount")} <Link href="/login">Sign in</Link></>}</div>
+    <div className="auth-switch">{mode==="login" ? <><Link href="/forgot-password">{t("forgotPassword")}</Link><br/>{t("newHere")} <Link href="/register">{t("createAccount")}</Link></> : <>{t("alreadyHaveAccount")} <Link href="/login">{t("signIn")}</Link></>}</div>
     <div className="auth-safe"><LockKeyhole size={13}/> {t("protectedDetails")}</div>
   </div>;
 }
