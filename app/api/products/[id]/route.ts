@@ -21,7 +21,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   const { id } = await context.params;
   const body = await request.json();
   const update: any = {};
-  for (const key of ["title", "shortDescription", "description", "image", "gallery", "categoryId", "price", "compareAtPrice", "currency", "deliveryMode", "deliveryInstructions", "isFeatured", "isActive", "sortOrder"]) if (body[key] !== undefined) update[key] = body[key];
+  for (const key of ["title", "shortDescription", "description", "image", "gallery", "colors", "categoryId", "price", "compareAtPrice", "currency", "deliveryMode", "deliveryInstructions", "isFeatured", "isActive", "sortOrder"]) if (body[key] !== undefined) update[key] = body[key];
   if (body.title) update.slug = slugify(body.slug || body.title);
   const product = await Product.findByIdAndUpdate(id, update, { new: true, runValidators: true });
   if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
