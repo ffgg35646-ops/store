@@ -153,15 +153,15 @@ const SettingsSchema = new Schema({
   maintenanceMode: { type: Boolean, default: false }
 }, { timestamps: true });
 
-export const User = mongoose.models.User || mongoose.model("User", UserSchema);
-export const Category = mongoose.models.Category || mongoose.model("Category", CategorySchema);
-export const Product = mongoose.models.Product || mongoose.model("Product", ProductSchema);
-export const InventoryItem = mongoose.models.InventoryItem || mongoose.model("InventoryItem", InventoryItemSchema);
-export const Order = mongoose.models.Order || mongoose.model("Order", OrderSchema);
-export const Coupon = mongoose.models.Coupon || mongoose.model("Coupon", CouponSchema);
-export const Notification = mongoose.models.Notification || mongoose.model("Notification", NotificationSchema);
-export const Conversation = mongoose.models.Conversation || mongoose.model("Conversation", ConversationSchema);
-export const Message = mongoose.models.Message || mongoose.model("Message", MessageSchema);
-export const WalletTransaction = mongoose.models.WalletTransaction || mongoose.model("WalletTransaction", WalletTransactionSchema);
-export const Settings = mongoose.models.Settings || mongoose.model("Settings", SettingsSchema);
-export const PushSubscription = mongoose.models.PushSubscription || mongoose.model("PushSubscription", PushSubscriptionSchema);
+export const User: any = mongoose.models.User || mongoose.model("User", UserSchema);
+export const Category: any = mongoose.models.Category || mongoose.model("Category", CategorySchema);
+export const Product: any = mongoose.models.Product || mongoose.model("Product", ProductSchema);
+export const InventoryItem: any = mongoose.models.InventoryItem || mongoose.model("InventoryItem", InventoryItemSchema);
+export const Order: any = mongoose.models.Order || mongoose.model("Order", OrderSchema);
+export const Coupon: any = mongoose.models.Coupon || mongoose.model("Coupon", CouponSchema);
+export const Notification: any = mongoose.models.Notification || mongoose.model("Notification", NotificationSchema);
+export const Conversation: any = mongoose.models.Conversation || mongoose.model("Conversation", ConversationSchema);
+export const Message: any = mongoose.models.Message || mongoose.model("Message", MessageSchema);
+export const WalletTransaction: any = mongoose.models.WalletTransaction || mongoose.model("WalletTransaction", WalletTransactionSchema);
+export const Settings: any = mongoose.models.Settings || mongoose.model("Settings", SettingsSchema);
+export const PushSubscription: any = mongoose.models.PushSubscription || mongoose.model("PushSubscription", PushSubscriptionSchema);
