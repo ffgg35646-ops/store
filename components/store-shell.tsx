@@ -34,7 +34,7 @@ export function StoreHeader() {
   return (
     <header className="site-header">
       <div className="header-inner">
-        <Link href="/" className="brand"><span className="brand-mark">N</span><span>{storeName}<small>THE DIGITAL MARKETPLACE</small></span></Link>
+        <Link href="/" className="brand"><span className="brand-mark">N</span><span>{storeName}<small>{t("marketplace")}</small></span></Link>
         <nav className="desktop-nav">
           <Link className={pathname === "/" ? "active" : ""} href="/">{t("discover")}</Link>
           <Link href="/#catalog">{t("catalog")}</Link>
