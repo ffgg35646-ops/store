@@ -16,26 +16,36 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const rawItems = Array.isArray(body.items) ? body.items : [];
     if (!rawItems.length || rawItems.length > 20) return NextResponse.json({ error: "Your cart is empty or too large." }, { status: 400 });
-    const quantities = new Map<string, number>();
+    const quantities = new Map<string, { productId: string; variant: string; quantity: number }>();
     for (const row of rawItems) {
       const id = String(row.productId || "");
+      const variant = String(row.variant || "").trim().slice(0, 60);
+      const key = `${id}::${variant}`;
       const quantity = Math.max(1, Math.min(10, Number(row.quantity) || 1));
-      quantities.set(id, (quantities.get(id) || 0) + quantity);
+      const current = quantities.get(key);
+      quantities.set(key, { productId: id, variant, quantity: (current?.quantity || 0) + quantity });
     }
-    const products = await Product.find({ _id: { $in: [...quantities.keys()] }, isActive: true });
-    if (products.length !== quantities.size) return NextResponse.json({ error: "One or more products are no longer available." }, { status: 409 });
+    const productIds = [...new Set([...quantities.values()].map((line) => line.productId))];
+    const products = await Product.find({ _id: { $in: productIds }, isActive: true });
+    if (products.length !== productIds.length) return NextResponse.json({ error: "One or more products are no longer available." }, { status: 409 });
     const items = [];
     let subtotal = 0;
     for (const product of products) {
-      const quantity = quantities.get(String(product._id)) || 1;
+      const productLines = [...quantities.values()].filter((line) => line.productId === String(product._id));
+      const totalQuantity = productLines.reduce((sum, line) => sum + line.quantity, 0);
       if (product.deliveryMode === "automatic") {
         const stock = await InventoryItem.countDocuments({ productId: product._id, status: "available" });
-        if (stock < quantity) return NextResponse.json({ error: `Not enough stock for ${product.title}. Available: ${stock}.` }, { status: 409 });
+        if (stock < totalQuantity) return NextResponse.json({ error: `Not enough stock for ${product.title}. Available: ${stock}.` }, { status: 409 });
       }
-      const personalDiscountPercent = user.role === "customer" ? Math.min(100, Math.max(0, Number(user.discountPercent || 0))) : 0;
-      const unitPrice = roundMoney(Number(product.price) * (1 - personalDiscountPercent / 100));
-      subtotal += unitPrice * quantity;
-      items.push({ productId: product._id, title: product.title, slug: product.slug, image: product.image, quantity, unitPrice, deliveryMode: product.deliveryMode, deliveredData: [] });
+      for (const line of productLines) {
+        const colors = Array.isArray((product as any).colors) ? (product as any).colors : [];
+        if (colors.length && !colors.some((color: any) => color.name === line.variant)) return NextResponse.json({ error: `Choose a valid color for ${product.title}.` }, { status: 400 });
+        if (!colors.length && line.variant) return NextResponse.json({ error: `The selected option for ${product.title} is no longer available.` }, { status: 409 });
+        const personalDiscountPercent = user.role === "customer" ? Math.min(100, Math.max(0, Number(user.discountPercent || 0))) : 0;
+        const unitPrice = roundMoney(Number(product.price) * (1 - personalDiscountPercent / 100));
+        subtotal += unitPrice * line.quantity;
+        items.push({ productId: product._id, title: product.title, slug: product.slug, image: product.image, variant: line.variant, quantity: line.quantity, unitPrice, deliveryMode: product.deliveryMode, deliveredData: [] });
+      }
     }
     subtotal = roundMoney(subtotal);
     let discount = 0;
