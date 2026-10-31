@@ -13,6 +13,9 @@ const UserSchema = new Schema({
   discountPercent: { type: Number, default: 0, min: 0, max: 100 },
   passwordResetTokenHash: { type: String, default: undefined, select: false },
   passwordResetExpiresAt: { type: Date, default: undefined, select: false },
+  emailVerified: { type: Boolean, default: true },
+  emailVerificationTokenHash: { type: String, default: undefined, select: false },
+  emailVerificationExpiresAt: { type: Date, default: undefined, select: false },
   lastLoginAt: Date
 }, { timestamps: true });
 
