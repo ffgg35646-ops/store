@@ -29,7 +29,7 @@ export function ProductCard({ product }: { product: any }) {
         <p className="product-desc">{product.shortDescription || t("instantAccess")}</p>
         <div className="product-bottom">
           <div><strong className="product-price">{money(Number(product.price), product.currency)}</strong>{sale && <del className="product-old-price">{money(oldPrice, product.currency)}</del>}{product.personalDiscountPercent>0&&<small className="personal-discount-pill">-{product.personalDiscountPercent}% member price</small>}</div>
-          <button className="icon-button add-cart" aria-label={t("addToCart")} onClick={() => cart.add({ productId: product._id, title: product.title, slug: product.slug, image: product.image, price: Number(product.price), currency: product.currency || "USD" })}><ShoppingCart size={17}/></button>
+          <button className="icon-button add-cart" aria-label={t("addToCart")} onClick={() => cart.add({ productId: product._id, title: product.title, slug: product.slug, image: product.image, price: Number(product.price), currency: product.currency || "USD", variant: product.colors?.[0]?.name || "" })}><ShoppingCart size={17}/></button>
         </div>
       </div>
     </article>
