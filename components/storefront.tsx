@@ -51,7 +51,7 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
         <section className="catalog-section" id="catalog"><div className="section-heading"><div><span className="eyebrow">THE FULL COLLECTION</span><h2>Browse the catalog</h2><p>Explore everything available in the store.</p></div><div className="catalog-search"><input placeholder="Filter products..." value={query} onChange={e=>setQuery(e.target.value)}/></div></div>
           {loading ? <div className="loading-grid">{[1,2,3,4].map(i=><div className="skeleton-card" key={i}/>)}</div> : visible.length ? <div className="product-grid">{visible.map(p=><ProductCard key={p._id} product={p}/>)}</div> : <div className="empty-state"><Boxes/><b>No products found</b><span>Try another search or browse a category.</span></div>}
         </section>
-        <section className="support-banner"><div className="support-symbol"><Headphones size={27}/></div><div><span className="eyebrow">NEED A HAND?</span><h2>Not sure what fits? Let's talk.</h2><p>Our support team can help with products, orders and delivery.</p></div><Link href="/chat" className="button button-primary">Chat with support <ArrowRight size={16}/></Link></section>
+        <section className="support-banner"><div className="support-symbol"><Headphones size={27}/></div><div><span className="eyebrow">NEED A HAND?</span><h2>Not sure what fits? Let&apos;s talk.</h2><p>Our support team can help with products, orders and delivery.</p></div><Link href="/chat" className="button button-primary">Chat with support <ArrowRight size={16}/></Link></section>
       </main>
     </>
   );
