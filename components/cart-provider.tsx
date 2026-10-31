@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-type CartLine = { productId: string; title: string; slug: string; image: string; price: number; currency: string; quantity: number };
+type CartLine = { productId: string; title: string; slug: string; image: string; price: number; currency: string; variant?: string; quantity: number };
+function lineKey(line: CartLine) { return `${line.productId}::${line.variant || ""}`; }
 type CartContextValue = { items: CartLine[]; add: (item: Omit<CartLine, "quantity">) => void; update: (id: string, quantity: number) => void; remove: (id: string) => void; clear: () => void; count: number; total: number };
 const CartContext = createContext<CartContextValue | null>(null);
 
