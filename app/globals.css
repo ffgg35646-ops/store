@@ -376,3 +376,11 @@ html[dir=rtl] .hero-image-dots{left:auto;right:20px}
 .product-gallery-thumbs button{flex:0 0 48px;width:48px;height:48px;padding:2px;border:1px solid #ffffff55;background:#ffffff10;border-radius:8px;overflow:hidden}
 .product-gallery-thumbs button.active{border-color:#fff;box-shadow:0 0 0 1px #fff}
 .product-gallery-thumbs img{width:100%;height:100%;object-fit:cover;border-radius:5px}
+
+.product-color-options{display:grid;gap:10px;margin:18px 0}
+.product-color-options>b{font-size:12px}
+.product-color-options>div{display:flex;gap:10px;flex-wrap:wrap}
+.product-color-options button{display:flex;align-items:center;gap:7px;padding:6px 9px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-size:11px}
+.product-color-options button.selected{border-color:var(--accent);box-shadow:0 0 0 2px #7057ed1c}
+.product-color-options button span{width:18px;height:18px;border-radius:50%;border:1px solid #0002}
+.cart-variant{display:block;color:var(--muted);font-size:11px;margin-top:3px}
