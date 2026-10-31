@@ -11,7 +11,14 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
   const [loading, setLoading] = useState(true);
-  const [announcement, setAnnouncement] = useState("");\n  const [slideIndex,setSlideIndex] = useState(0);\n  const slides = [\n    {badge:"THE DIGITAL GOODS DESTINATION",first:"Everything digital.",second:"One better place.",description:"Discover premium subscriptions, entertainment, software and digital essentials — curated for the way you live online."},\n    {badge:"EXCLUSIVE MEMBER OFFERS",first:"Better access.",second:"Smarter prices.",description:"Explore featured picks and member-only prices across your favourite digital categories."},\n    {badge:"FAST DIGITAL DELIVERY",first:"Your next favourite.",second:"Just a click away.",description:"Browse the catalog, choose what fits, and track your digital order from one simple account."}\n  ];\n  useEffect(()=>{const timer=setInterval(()=>setSlideIndex(index=>(index+1)%slides.length),6500);return()=>clearInterval(timer);},[]);
+  const [announcement, setAnnouncement] = useState("");
+  const [slideIndex,setSlideIndex] = useState(0);
+  const slides = [
+    {badge:"THE DIGITAL GOODS DESTINATION",first:"Everything digital.",second:"One better place.",description:"Discover premium subscriptions, entertainment, software and digital essentials — curated for the way you live online."},
+    {badge:"EXCLUSIVE MEMBER OFFERS",first:"Better access.",second:"Smarter prices.",description:"Explore featured picks and member-only prices across your favourite digital categories."},
+    {badge:"FAST DIGITAL DELIVERY",first:"Your next favourite.",second:"Just a click away.",description:"Browse the catalog, choose what fits, and track your digital order from one simple account."}
+  ];
+  useEffect(()=>{const timer=setInterval(()=>setSlideIndex(index=>(index+1)%slides.length),6500);return()=>clearInterval(timer);},[]);
   useEffect(() => {
     let active = true;
     Promise.all([
@@ -31,9 +38,10 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
       {announcement && <div className="announcement"><Sparkles size={14}/>{announcement}</div>}
       <section className="hero-section">
         <div className="hero-content">
-          <div className="hero-badge"><span className="live-dot"/> THE DIGITAL GOODS DESTINATION</div>
-          <h1>Everything digital.<br/><em>One better place.</em></h1>
-          <p>Discover premium subscriptions, entertainment, software and digital essentials — curated for the way you live online.</p>
+          <div className="hero-badge"><span className="live-dot"/> {slides[slideIndex].badge}</div>
+          <h1 key={slideIndex}>{slides[slideIndex].first}<br/><em>{slides[slideIndex].second}</em></h1>
+          <p>{slides[slideIndex].description}</p>
+          <div className="hero-slider-controls" aria-label="Featured slides"><button type="button" onClick={()=>setSlideIndex(index=>(index+slides.length-1)%slides.length)} aria-label="Previous slide"><ChevronLeft size={16}/></button>{slides.map((slide,index)=><button type="button" key={slide.badge} className={index===slideIndex?"active":""} onClick={()=>setSlideIndex(index)} aria-label={`Go to slide ${index+1}`}/>) }<button type="button" onClick={()=>setSlideIndex(index=>(index+1)%slides.length)} aria-label="Next slide"><ChevronRight size={16}/></button></div>
           <div className="hero-actions"><a href="#catalog" className="button button-primary">Explore the catalog <ArrowUpRight size={17}/></a><Link href="/chat" className="button button-ghost">Talk to our team</Link></div>
           <div className="hero-proof"><span><ShieldCheck size={15}/> Secure checkout</span><span><Zap size={15}/> Fast delivery</span><span><Headphones size={15}/> Human support</span></div>
         </div>
