@@ -16,7 +16,7 @@ export function AccountClient({ initialTab="overview" }: {initialTab?:string}) {
   const [loading,setLoading]=useState(true);\n  const [profileName,setProfileName]=useState("");\n  const [currentPassword,setCurrentPassword]=useState("");\n  const [newPassword,setNewPassword]=useState("");\n  const [profileBusy,setProfileBusy]=useState(false);\n  const [profileMessage,setProfileMessage]=useState("");
   async function load() {
     const [u,o,n,w]=await Promise.all([fetch("/api/auth/me").then(r=>r.json()),fetch("/api/orders").then(r=>r.json()),fetch("/api/notifications").then(r=>r.json()),fetch("/api/wallet").then(r=>r.json())]);
-    setUser(u.user);setProfileName(u.user?.name||"");setOrders(o.orders||[]);setNotes(n.notifications||[]);setWallet(w);setLoading(false);
+    setUser(u.user);setProfileName(current=>current||u.user?.name||"");setOrders(o.orders||[]);setNotes(n.notifications||[]);setWallet(w);setLoading(false);
   }
   useEffect(()=>{load();const timer=setInterval(load,30000);return()=>clearInterval(timer);},[]);
   async function markRead(id:string){await fetch(`/api/notifications/${id}`,{method:"PATCH"});setNotes(n=>n.map(x=>x._id===id?{...x,isRead:true}:x));}

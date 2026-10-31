@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   const name = String(body.name || "").trim();
   const email = String(body.email || "").trim().toLowerCase();
   const password = String(body.password || "");
-  if (name.length < 2 || name.length > 80 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || password.length < 8) return NextResponse.json({ error: "Enter a name, valid email and password of at least 8 characters." }, { status: 400 });
+  if (name.length < 2 || name.length > 80 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 8) return NextResponse.json({ error: "Enter a name, valid email and password of at least 8 characters." }, { status: 400 });
   if (await User.exists({ email })) return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
   const customer = await User.create({ name, email, password: await bcrypt.hash(password, 12), role: "customer" });
   return NextResponse.json({ success: true, user: { _id: customer._id, name: customer.name, email: customer.email }, message: "Customer account created." }, { status: 201 });
