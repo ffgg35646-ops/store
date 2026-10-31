@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Bell, ChevronDown, CircleUserRound, LogOut, Menu, MessageCircle, Search, ShoppingBag, X } from "lucide-react";
+import { Bell, ChevronDown, CircleUserRound, Languages, LogOut, Menu, MessageCircle, Search, ShoppingBag, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useCart } from "@/components/cart-provider";
+import { useLanguage } from "@/components/language-provider";
 
 export function StoreHeader() {
   const cart = useCart();
+  const { language, setLanguage, t } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
@@ -34,25 +36,27 @@ export function StoreHeader() {
       <div className="header-inner">
         <Link href="/" className="brand"><span className="brand-mark">N</span><span>{storeName}<small>THE DIGITAL MARKETPLACE</small></span></Link>
         <nav className="desktop-nav">
-          <Link className={pathname === "/" ? "active" : ""} href="/">Discover</Link>
-          <Link href="/#catalog">Catalog</Link>
-          <Link href="/#deals">Deals</Link>
+          <Link className={pathname === "/" ? "active" : ""} href="/">{t("discover")}</Link>
+          <Link href="/#catalog">{t("catalog")}</Link>
+          <Link href="/#deals">{t("deals")}</Link>
         </nav>
-        <form className="header-search" onSubmit={submitSearch}><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search digital products..."/><kbd>↵</kbd></form>
+        <form className="header-search" onSubmit={submitSearch}><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><kbd>↵</kbd></form>
         <div className="header-actions">
-          <Link href="/account?tab=notifications" className="header-icon" aria-label="Notifications"><Bell size={19}/>{unread > 0 && <i className="notification-dot">{unread > 9 ? "9+" : unread}</i>}</Link>
-          <Link href="/cart" className="header-icon cart-icon" aria-label="Shopping cart"><ShoppingBag size={19}/>{cart.count > 0 && <i className="cart-count">{cart.count}</i>}</Link>
-          {user ? <div className="user-menu"><Link href={user.role === "admin" ? "/admin" : "/account"} className="account-link"><CircleUserRound size={18}/><span>{user.name?.split(" ")[0]}</span><ChevronDown size={14}/></Link><div className="user-dropdown"><Link href="/account">My account</Link><Link href="/orders">My orders</Link><Link href="/chat">Support chat</Link>{user.role === "admin" && <Link href="/admin">Admin dashboard</Link>}<button onClick={logout}><LogOut size={15}/> Sign out</button></div></div> : <Link href="/login" className="button button-small">Sign in</Link>}
+          <button type="button" className="language-toggle" onClick={()=>setLanguage(language==="en"?"ar":"en")} aria-label={t("language")} title={t("language")}><Languages size={17}/><span>{language==="en"?"العربية":"English"}</span></button>
+          <Link href="/account?tab=notifications" className="header-icon" aria-label={t("notifications")}><Bell size={19}/>{unread > 0 && <i className="notification-dot">{unread > 9 ? "9+" : unread}</i>}</Link>
+          <Link href="/cart" className="header-icon cart-icon" aria-label={t("cart")}><ShoppingBag size={19}/>{cart.count > 0 && <i className="cart-count">{cart.count}</i>}</Link>
+          {user ? <div className="user-menu"><Link href={user.role === "admin" ? "/admin" : "/account"} className="account-link"><CircleUserRound size={18}/><span>{user.name?.split(" ")[0]}</span><ChevronDown size={14}/></Link><div className="user-dropdown"><Link href="/account">{t("myAccount")}</Link><Link href="/orders">{t("myOrders")}</Link><Link href="/chat">{t("supportChat")}</Link>{user.role === "admin" && <Link href="/admin">{t("adminDashboard")}</Link>}<button onClick={logout}><LogOut size={15}/> {t("signOut")}</button></div></div> : <Link href="/login" className="button button-small">{t("signIn")}</Link>}
           <button className="mobile-toggle" onClick={()=>setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">{mobileOpen ? <X/> : <Menu/>}</button>
         </div>
       </div>
-      {mobileOpen && <div className="mobile-nav"><Link href="/" onClick={()=>setMobileOpen(false)}>Discover</Link><Link href="/#catalog" onClick={()=>setMobileOpen(false)}>Catalog</Link><Link href="/#deals" onClick={()=>setMobileOpen(false)}>Deals</Link><Link href="/chat" onClick={()=>setMobileOpen(false)}><MessageCircle size={16}/> Support</Link><Link href={user ? "/account" : "/login"} onClick={()=>setMobileOpen(false)}>Account</Link><form onSubmit={submitSearch}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products"/><button><Search size={16}/></button></form></div>}
+      {mobileOpen && <div className="mobile-nav"><Link href="/" onClick={()=>setMobileOpen(false)}>{t("discover")}</Link><Link href="/#catalog" onClick={()=>setMobileOpen(false)}>{t("catalog")}</Link><Link href="/#deals" onClick={()=>setMobileOpen(false)}>{t("deals")}</Link><Link href="/chat" onClick={()=>setMobileOpen(false)}><MessageCircle size={16}/> {t("support")}</Link><Link href={user ? "/account" : "/login"} onClick={()=>setMobileOpen(false)}>{t("myAccount")}</Link><form onSubmit={submitSearch}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><button><Search size={16}/></button></form></div>}
     </header>
   );
 }
 
 export function StoreFooter() {
-  return <footer className="site-footer"><div className="footer-inner"><div className="brand footer-brand"><span className="brand-mark">N</span><span>NOVA<span className="brand-light"> DIGITAL</span><small>THE DIGITAL MARKETPLACE</small></span></div><p>One destination for subscriptions, software, entertainment and digital essentials.</p><div className="footer-links"><Link href="/#catalog">Explore catalog</Link><Link href="/about">About us</Link><Link href="/privacy">Privacy policy</Link><Link href="/terms">Terms</Link><Link href="/contact">Contact</Link><Link href="/chat">Customer support</Link><Link href="/account">My account</Link></div><span className="copyright">© {new Date().getFullYear()} Nova Digital. All rights reserved.</span></div></footer>;
+  const { t } = useLanguage();
+  return <footer className="site-footer"><div className="footer-inner"><div className="brand footer-brand"><span className="brand-mark">N</span><span>NOVA<span className="brand-light"> DIGITAL</span><small>{t("marketplace")}</small></span></div><p>{t("footerDescription")}</p><div className="footer-links"><Link href="/#catalog">{t("exploreCatalog")}</Link><Link href="/about">{t("aboutUs")}</Link><Link href="/privacy">{t("privacyPolicy")}</Link><Link href="/terms">{t("terms")}</Link><Link href="/contact">{t("contact")}</Link><Link href="/chat">{t("customerSupport")}</Link><Link href="/account">{t("myAccount")}</Link></div><span className="copyright">© {new Date().getFullYear()} Nova Digital. All rights reserved.</span></div></footer>;
 }
 
 export function PageIntro({ eyebrow, title, description }: { eyebrow?: string; title: string; description?: string }) {
