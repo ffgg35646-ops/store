@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { dbConnect } from "@/lib/db";
-import { Order, User, WalletTransaction } from "@/lib/models";
+import { Coupon, Order, User, WalletTransaction } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { fulfillOrder } from "@/lib/fulfillment";
 import { notify } from "@/lib/store";
@@ -27,6 +27,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   if (body.action === "approve-payment") {
     if (order.paymentMethod !== "manual" || order.paymentStatus !== "pending") return NextResponse.json({ error: "Only pending manual-transfer payments can be approved here." }, { status: 400 });
     order.paymentStatus = "paid"; order.status = "processing"; order.paidAt = new Date(); await order.save();
+    if (order.couponCode) await Coupon.updateOne({ code: order.couponCode }, { $inc: { usedCount: 1 } });
     const result = await fulfillOrder(String(order._id));
     await notify({ userId: order.userId, title: "Payment approved", body: `Your payment for ${order.orderNumber} has been approved.`, type: "payment", href: `/orders/${order._id}` });
     return NextResponse.json({ order: result });
