@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "@/components/cart-provider";
+import { LanguageProvider } from "@/components/language-provider";
 import { StoreHeader, StoreFooter } from "@/components/store-shell";
 
 export const metadata: Metadata = {
@@ -12,5 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><CartProvider><StoreHeader/>{children}<StoreFooter/></CartProvider></body></html>;
+  return <html lang="en" suppressHydrationWarning><body><LanguageProvider><CartProvider><StoreHeader/>{children}<StoreFooter/></CartProvider></LanguageProvider></body></html>;
 }
