@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     await dbConnect();
     const body = await request.json();
     const email = String(body.email || "").trim().toLowerCase();
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
     const user = await User.findOne({ email, status: "active", emailVerified: false });
     if (!user) return NextResponse.json({ success: true, message: "If your account needs verification, an email will be sent." });
     if (!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD && process.env.SMTP_FROM)) return NextResponse.json({ error: "Email delivery is not configured. Please contact support." }, { status: 503 });
