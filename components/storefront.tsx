@@ -29,9 +29,9 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
     "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1100&q=85"
   ];
   const slides = [
-    {badge:"THE DIGITAL GOODS DESTINATION",first:"Everything digital.",second:"One better place.",description:"Discover premium subscriptions, entertainment, software and digital essentials — curated for the way you live online."},
-    {badge:"EXCLUSIVE MEMBER OFFERS",first:"Better access.",second:"Smarter prices.",description:"Explore featured picks and member-only prices across your favourite digital categories."},
-    {badge:"FAST DIGITAL DELIVERY",first:"Your next favourite.",second:"Just a click away.",description:"Browse the catalog, choose what fits, and track your digital order from one simple account."}
+    {badge:t("digitalDestination"),first:t("exploreDigital"),second:t("oneBetter"),description:t("digitalDescription")},
+    {badge:t("exclusiveOffers"),first:t("betterAccess"),second:t("smarterPrices"),description:t("offersDescription")},
+    {badge:t("fastDelivery"),first:t("nextFavourite"),second:t("clickAway"),description:t("deliveryDescription")}
   ];
   useEffect(()=>{const timer=setInterval(()=>setSlideIndex(index=>(index+1)%slides.length),6500);return()=>clearInterval(timer);},[]);
   useEffect(()=>{const timer=setInterval(()=>setHeroImageIndex(index=>(index+1)%heroImages.length),4500);return()=>clearInterval(timer);},[]);
