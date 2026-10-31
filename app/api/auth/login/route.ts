@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
     const { email, password } = await request.json();
     const user = await User.findOne({ email: String(email || "").trim().toLowerCase() }).select("+password");
     if (!user || user.status !== "active" || !(await bcrypt.compare(String(password || ""), user.password))) return NextResponse.json({ error: "Email or password is incorrect." }, { status: 401 });
+    if (!user.emailVerified) return NextResponse.json({ error: "Please verify your email before signing in. Check your inbox for the verification link." }, { status: 403 });
     user.lastLoginAt = new Date();
     await user.save();
     const token = await createSession(user);
