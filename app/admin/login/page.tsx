@@ -1,1 +1,2 @@
-import { redirect } from "next/navigation";\nexport default function AdminLoginRedirect(){redirect("/admin-login");}\n
+import { redirect } from "next/navigation";
+export default function AdminLoginRedirect(){redirect("/admin-login");}
