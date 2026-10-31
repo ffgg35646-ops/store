@@ -14,7 +14,8 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   if (body.targetType && body.targetType !== "all" && (!Array.isArray(body.targetIds) || body.targetIds.length === 0)) return NextResponse.json({ error: "Choose at least one target for this coupon." }, { status: 400 });
   const update: any = {};
   for (const key of ["code", "description", "discountType", "value", "minOrder", "maxDiscount", "startsAt", "endsAt", "usageLimit", "targetType", "targetIds", "active"]) if (body[key] !== undefined) update[key] = body[key];
-  const coupon = await Coupon.findByIdAndUpdate(id, update, { new: true, runValidators: true });
+  const couponModel: any = Coupon;
+  const coupon = await couponModel.findByIdAndUpdate(id, update, { new: true, runValidators: true });
   if (!coupon) return NextResponse.json({ error: "Coupon not found." }, { status: 404 });
   return NextResponse.json({ coupon });
 }
