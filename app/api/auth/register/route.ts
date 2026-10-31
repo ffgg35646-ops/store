@@ -4,7 +4,7 @@ import { randomBytes, createHash } from "node:crypto";
 import nodemailer from "nodemailer";
 import { dbConnect } from "@/lib/db";
 import { User } from "@/lib/models";
-import { notify, safeUser } from "@/lib/store";
+import { notify } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
