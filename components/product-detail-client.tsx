@@ -15,7 +15,6 @@ export function ProductDetailClient({slug}:{slug:string}) {
   const cart=useCart();
   useEffect(()=>{fetch(`/api/products?slug=${encodeURIComponent(slug)}`).then(r=>r.json()).then(d=>setProduct(d.products?.[0]||null)).finally(()=>setLoading(false));},[slug]);
   if(loading)return <main className="main-content narrow-page"><div className="loading-block"/></main>;
-  if(product && !selectedImage && product.image) setSelectedImage(product.image);
   if(!product)return <main className="main-content narrow-page"><div className="empty-state"><ShoppingCart/><b>Product not found</b><Link href="/#catalog" className="button button-primary">Back to catalog</Link></div></main>;
   const basePrice=Number(product.basePrice??product.price);
   const old=Number(product.compareAtPrice||0)>Number(product.price)?Number(product.compareAtPrice):basePrice;
