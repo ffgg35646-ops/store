@@ -1,0 +1,1 @@
+import { Suspense } from "react";\nimport { AuthForm } from "@/components/auth-form";\nexport default function AdminLoginPage(){return <main className="auth-page"><Suspense fallback={<div className="loading-block"/>}><AuthForm mode="login"/></Suspense></main>}\n

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Boxes, Flame, Headphones, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Boxes, Flame, Headphones, ShieldCheck, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 
 export function Storefront({ initialQuery = "", initialCategory = "" }: { initialQuery?: string; initialCategory?: string }) {
@@ -11,7 +11,7 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
   const [loading, setLoading] = useState(true);
-  const [announcement, setAnnouncement] = useState("");
+  const [announcement, setAnnouncement] = useState("");\n  const [slideIndex,setSlideIndex] = useState(0);\n  const slides = [\n    {badge:"THE DIGITAL GOODS DESTINATION",first:"Everything digital.",second:"One better place.",description:"Discover premium subscriptions, entertainment, software and digital essentials — curated for the way you live online."},\n    {badge:"EXCLUSIVE MEMBER OFFERS",first:"Better access.",second:"Smarter prices.",description:"Explore featured picks and member-only prices across your favourite digital categories."},\n    {badge:"FAST DIGITAL DELIVERY",first:"Your next favourite.",second:"Just a click away.",description:"Browse the catalog, choose what fits, and track your digital order from one simple account."}\n  ];\n  useEffect(()=>{const timer=setInterval(()=>setSlideIndex(index=>(index+1)%slides.length),6500);return()=>clearInterval(timer);},[]);
   useEffect(() => {
     let active = true;
     Promise.all([
