@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Boxes, Flame, Headphones, ShieldCheck, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
+import { useLanguage } from "@/components/language-provider";
 
 export function Storefront({ initialQuery = "", initialCategory = "" }: { initialQuery?: string; initialCategory?: string }) {
+  const { t } = useLanguage();
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [query, setQuery] = useState(initialQuery);
@@ -13,12 +15,26 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
   const [loading, setLoading] = useState(true);
   const [announcement, setAnnouncement] = useState("");
   const [slideIndex,setSlideIndex] = useState(0);
+  const [heroImageIndex,setHeroImageIndex] = useState(0);
+  const heroImages = [
+    "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1100&q=85",
+    "https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=1100&q=85",
+    "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?auto=format&fit=crop&w=1100&q=85",
+    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1100&q=85",
+    "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&w=1100&q=85",
+    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1100&q=85",
+    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1100&q=85",
+    "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1100&q=85",
+    "https://images.unsplash.com/photo-1523729752-3b8b9b2c4e3f?auto=format&fit=crop&w=1100&q=85",
+    "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1100&q=85"
+  ];
   const slides = [
     {badge:"THE DIGITAL GOODS DESTINATION",first:"Everything digital.",second:"One better place.",description:"Discover premium subscriptions, entertainment, software and digital essentials — curated for the way you live online."},
     {badge:"EXCLUSIVE MEMBER OFFERS",first:"Better access.",second:"Smarter prices.",description:"Explore featured picks and member-only prices across your favourite digital categories."},
     {badge:"FAST DIGITAL DELIVERY",first:"Your next favourite.",second:"Just a click away.",description:"Browse the catalog, choose what fits, and track your digital order from one simple account."}
   ];
   useEffect(()=>{const timer=setInterval(()=>setSlideIndex(index=>(index+1)%slides.length),6500);return()=>clearInterval(timer);},[]);
+  useEffect(()=>{const timer=setInterval(()=>setHeroImageIndex(index=>(index+1)%heroImages.length),4500);return()=>clearInterval(timer);},[]);
   useEffect(() => {
     let active = true;
     Promise.all([
@@ -45,7 +61,7 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
           <div className="hero-actions"><a href="#catalog" className="button button-primary">Explore the catalog <ArrowUpRight size={17}/></a><Link href="/chat" className="button button-ghost">Talk to our team</Link></div>
           <div className="hero-proof"><span><ShieldCheck size={15}/> Secure checkout</span><span><Zap size={15}/> Fast delivery</span><span><Headphones size={15}/> Human support</span></div>
         </div>
-        <div className="hero-art"><div className="orb orb-one"/><div className="orb orb-two"/><div className="hero-panel"><div className="panel-top"><span>YOUR DIGITAL WORLD</span><Sparkles size={16}/></div><div className="hero-tiles"><div className="hero-tile tile-large"><span className="tile-icon">✦</span><strong>Premium</strong><small>Subscriptions</small></div><div className="hero-tile tile-stream"><span>▶</span><strong>Stream</strong><small>Without limits</small></div><div className="hero-tile tile-game"><span>⌘</span><strong>Play</strong><small>More possibilities</small></div><div className="hero-tile tile-ai"><span>✧</span><strong>Create</strong><small>Work smarter</small></div></div><div className="panel-bottom"><span>Curated digital essentials</span><span className="pulse-bars"><i/><i/><i/><i/><i/></span></div></div></div>
+        <div className="hero-art"><div className="hero-image-carousel"><img key={heroImageIndex} className="hero-carousel-image" src={heroImages[heroImageIndex]} alt="Digital products and technology"/><div className="hero-image-shade"/><div className="hero-image-caption"><span className="hero-image-count">{String(heroImageIndex+1).padStart(2,"0")} / 10</span><strong>{t("curatedEssentials")}</strong><small>{t("marketplace")}</small></div><div className="hero-image-controls"><button type="button" aria-label="Previous image" onClick={()=>setHeroImageIndex(index=>(index+heroImages.length-1)%heroImages.length)}>‹</button><button type="button" aria-label="Next image" onClick={()=>setHeroImageIndex(index=>(index+1)%heroImages.length)}>›</button></div><div className="hero-image-dots">{heroImages.map((_,index)=><button type="button" key={index} aria-label={"Show image "+(index+1)} className={index===heroImageIndex?"active":""} onClick={()=>setHeroImageIndex(index)}/>)}</div></div></div>
         <div className="hero-grid-pattern"/>
       </section>
       <section className="trust-strip"><div><ShieldCheck/><span><b>Protected payments</b><small>Safe checkout options</small></span></div><div><Zap/><span><b>Quick delivery</b><small>Digital-first fulfillment</small></span></div><div><Headphones/><span><b>Real support</b><small>We&apos;re here to help</small></span></div><div><Sparkles/><span><b>Member rewards</b><small>Offers made for you</small></span></div></section>
