@@ -19,7 +19,8 @@
     "react-dom": "19.1.10",
     "stripe": "^18.5.0",
     "web-push": "^3.6.7",
-    "@next/env": "15.5.28"
+    "@next/env": "15.5.28",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -30,6 +31,7 @@
     "eslint-config-next": "15.5.28",
     "tsx": "^4.20.5",
     "typescript": "^5.8.3",
-    "@types/web-push": "^3.6.4"
+    "@types/web-push": "^3.6.4",
+    "@eslint/eslintrc": "^3.3.1"
   }
 }
