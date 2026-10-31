@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { dbConnect } from "@/lib/db";
-import { Order, Product, User } from "@/lib/models";
+import { Coupon, Order, Product, User } from "@/lib/models";
 import { fulfillOrder } from "@/lib/fulfillment";
 import { notify } from "@/lib/store";
 
@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
     if (orderId) {
       const order = await Order.findOneAndUpdate({ _id: orderId, paymentStatus: "pending" }, { $set: { paymentStatus: "paid", status: "processing", paidAt: new Date() } }, { new: true });
       if (order) {
+        if (order.couponCode) await Coupon.updateOne({ code: order.couponCode }, { $inc: { usedCount: 1 } });
         await Product.updateMany({ _id: { $in: order.items.map((i: any) => i.productId) } }, { $inc: { salesCount: 1 } });
         await fulfillOrder(String(order._id));
         await notify({ userId: order.userId, title: "Payment confirmed", body: `Payment for ${order.orderNumber} was successful.`, type: "payment", href: `/orders/${order._id}` });
