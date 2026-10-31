@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   const settings = await Settings.findOne({ key: "store" }).lean();
   const product = await Product.create({
     title, slug, shortDescription: body.shortDescription || "", description: body.description || "", image: body.image || "",
-    gallery: Array.isArray(body.gallery) ? body.gallery : [], categoryId: body.categoryId,
+    gallery: Array.isArray(body.gallery) ? body.gallery : [], colors: Array.isArray(body.colors) ? body.colors.filter((color: any) => color && String(color.name || "").trim()).map((color: any) => ({ name: String(color.name).trim().slice(0, 50), hex: /^#[0-9a-fA-F]{6}$/.test(String(color.hex || "")) ? String(color.hex) : "#777777" })) : [], categoryId: body.categoryId,
     price: Number(body.price), compareAtPrice: Number(body.compareAtPrice || 0), currency: body.currency || (settings as any)?.currency || process.env.NEXT_PUBLIC_STORE_CURRENCY || "USD",
     deliveryMode: body.deliveryMode === "manual" ? "manual" : "automatic", deliveryInstructions: body.deliveryInstructions || "",
     isFeatured: Boolean(body.isFeatured), isActive: body.isActive !== false, sortOrder: Number(body.sortOrder || 0)
