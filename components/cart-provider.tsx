@@ -18,11 +18,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => ({
     items,
     add: (item: Omit<CartLine, "quantity">) => setItems((current) => {
-      const found = current.find((line) => line.productId === item.productId);
-      return found ? current.map((line) => line.productId === item.productId ? { ...line, quantity: Math.min(10, line.quantity + 1) } : line) : [...current, { ...item, quantity: 1 }];
+      const normalized = { ...item, variant: item.variant || "" };
+      const found = current.find((line) => lineKey(line) === lineKey(normalized));
+      return found ? current.map((line) => lineKey(line) === lineKey(normalized) ? { ...line, quantity: Math.min(10, line.quantity + 1) } : line) : [...current, { ...normalized, quantity: 1 }];
     }),
-    update: (id: string, quantity: number) => setItems((current) => quantity < 1 ? current.filter((line) => line.productId !== id) : current.map((line) => line.productId === id ? { ...line, quantity: Math.min(10, quantity) } : line)),
-    remove: (id: string) => setItems((current) => current.filter((line) => line.productId !== id)),
+    update: (id: string, quantity: number) => setItems((current) => quantity < 1 ? current.filter((line) => lineKey(line) !== id) : current.map((line) => lineKey(line) === id ? { ...line, quantity: Math.min(10, quantity) } : line)),
+    remove: (id: string) => setItems((current) => current.filter((line) => lineKey(line) !== id)),
     clear: () => setItems([]),
     count: items.reduce((sum, item) => sum + item.quantity, 0),
     total: items.reduce((sum, item) => sum + item.price * item.quantity, 0)
