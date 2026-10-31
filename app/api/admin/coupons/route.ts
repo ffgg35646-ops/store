@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
   const code = String(body.code || "").trim().toUpperCase().replace(/\s+/g, "");
   const value = Number(body.value);
   if (!/^[A-Z0-9_-]{3,30}$/.test(code) || !Number.isFinite(value) || value <= 0) return NextResponse.json({ error: "Enter a valid coupon code and discount." }, { status: 400 });
+  if (body.targetType && body.targetType !== "all" && (!Array.isArray(body.targetIds) || body.targetIds.length === 0)) return NextResponse.json({ error: "Choose at least one target for this coupon." }, { status: 400 });
   const coupon = await Coupon.create({
     code, description: body.description || "", discountType: body.discountType === "fixed" ? "fixed" : "percentage", value,
     minOrder: Number(body.minOrder || 0), maxDiscount: Number(body.maxDiscount || 0),

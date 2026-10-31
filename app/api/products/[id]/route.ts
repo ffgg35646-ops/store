@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
-import { InventoryItem, Product } from "@/lib/models";
+import { Product } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { slugify } from "@/lib/store";
 
@@ -30,6 +30,5 @@ export async function DELETE(_request: NextRequest, context: { params: Promise<{
   await dbConnect();
   const { id } = await context.params;
   await Product.findByIdAndUpdate(id, { isActive: false });
-  await InventoryItem.updateMany({ productId: id, status: "available" }, { $set: { status: "issued" } });
   return NextResponse.json({ success: true, message: "Product hidden; order history is preserved." });
 }

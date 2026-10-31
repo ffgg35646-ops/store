@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { dbConnect } from "@/lib/db";
-import { Order, Product } from "@/lib/models";
+import { Order, Product, User } from "@/lib/models";
 import { fulfillOrder } from "@/lib/fulfillment";
 import { notify } from "@/lib/store";
 
@@ -23,6 +23,8 @@ export async function POST(request: NextRequest) {
         await Product.updateMany({ _id: { $in: order.items.map((i: any) => i.productId) } }, { $inc: { salesCount: 1 } });
         await fulfillOrder(String(order._id));
         await notify({ userId: order.userId, title: "Payment confirmed", body: `Payment for ${order.orderNumber} was successful.`, type: "payment", href: `/orders/${order._id}` });
+        const admins = await User.find({ role: "admin", status: "active" }).select("_id");
+        await notify({ targetUserIds: admins.map((admin: any) => admin._id), title: "New paid order", body: `Order ${order.orderNumber} was paid online.`, type: "order", href: "/admin/orders" });
       }
     }
   } else if (event.type === "checkout.session.expired") {

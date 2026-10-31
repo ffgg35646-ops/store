@@ -85,6 +85,8 @@ export async function POST(request: NextRequest) {
       await Product.updateMany({ _id: { $in: products.map((p: any) => p._id) } }, { $inc: { salesCount: 1 } });
       const fulfilled = await fulfillOrder(String(order._id));
       await notify({ userId: user._id, title: "Order placed successfully", body: `Your order ${order.orderNumber} has been paid using your wallet.`, type: "payment", href: `/orders/${order._id}` });
+      const admins = await User.find({ role: "admin", status: "active" }).select("_id");
+      await notify({ targetUserIds: admins.map((admin: any) => admin._id), title: "New paid order", body: `Order ${order.orderNumber} was paid from the customer wallet.`, type: "order", href: "/admin/orders" });
       return NextResponse.json({ orderId: String(order._id), orderNumber: order.orderNumber, status: fulfilled?.status || "processing" }, { status: 201 });
     }
     if (paymentMethod === "stripe") {
