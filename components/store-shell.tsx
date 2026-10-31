@@ -52,7 +52,7 @@ export function StoreHeader() {
 }
 
 export function StoreFooter() {
-  return <footer className="site-footer"><div className="footer-inner"><div className="brand footer-brand"><span className="brand-mark">N</span><span>NOVA<span className="brand-light"> DIGITAL</span><small>THE DIGITAL MARKETPLACE</small></span></div><p>One destination for subscriptions, software, entertainment and digital essentials.</p><div className="footer-links"><Link href="/#catalog">Explore catalog</Link><Link href="/chat">Customer support</Link><Link href="/account">My account</Link></div><span className="copyright">© {new Date().getFullYear()} Nova Digital. All rights reserved.</span></div></footer>;
+  return <footer className="site-footer"><div className="footer-inner"><div className="brand footer-brand"><span className="brand-mark">N</span><span>NOVA<span className="brand-light"> DIGITAL</span><small>THE DIGITAL MARKETPLACE</small></span></div><p>One destination for subscriptions, software, entertainment and digital essentials.</p><div className="footer-links"><Link href="/#catalog">Explore catalog</Link><Link href="/about">About us</Link><Link href="/privacy">Privacy policy</Link><Link href="/terms">Terms</Link><Link href="/contact">Contact</Link><Link href="/chat">Customer support</Link><Link href="/account">My account</Link></div><span className="copyright">© {new Date().getFullYear()} Nova Digital. All rights reserved.</span></div></footer>;
 }
 
 export function PageIntro({ eyebrow, title, description }: { eyebrow?: string; title: string; description?: string }) {

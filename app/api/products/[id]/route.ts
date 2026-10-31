@@ -7,9 +7,12 @@ import { slugify } from "@/lib/store";
 export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   await dbConnect();
   const { id } = await context.params;
+  const user = await getCurrentUser();
   const product = await Product.findById(id).populate("categoryId", "name slug").lean();
-  if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
-  return NextResponse.json({ product });
+  if (!product || (!(user?.role === "admin") && !product.isActive)) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+  const personalDiscountPercent = user?.role === "customer" ? Math.min(100, Math.max(0, Number(user.discountPercent || 0))) : 0;
+  const basePrice = Number((product as any).price);
+  return NextResponse.json({ product: { ...product, basePrice, personalDiscountPercent, price: personalDiscountPercent ? Math.round(basePrice * (1 - personalDiscountPercent / 100) * 100) / 100 : basePrice } });
 }
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();

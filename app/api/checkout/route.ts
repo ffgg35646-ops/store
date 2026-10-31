@@ -32,8 +32,10 @@ export async function POST(request: NextRequest) {
         const stock = await InventoryItem.countDocuments({ productId: product._id, status: "available" });
         if (stock < quantity) return NextResponse.json({ error: `Not enough stock for ${product.title}. Available: ${stock}.` }, { status: 409 });
       }
-      subtotal += Number(product.price) * quantity;
-      items.push({ productId: product._id, title: product.title, slug: product.slug, image: product.image, quantity, unitPrice: Number(product.price), deliveryMode: product.deliveryMode, deliveredData: [] });
+      const personalDiscountPercent = user.role === "customer" ? Math.min(100, Math.max(0, Number(user.discountPercent || 0))) : 0;
+      const unitPrice = roundMoney(Number(product.price) * (1 - personalDiscountPercent / 100));
+      subtotal += unitPrice * quantity;
+      items.push({ productId: product._id, title: product.title, slug: product.slug, image: product.image, quantity, unitPrice, deliveryMode: product.deliveryMode, deliveredData: [] });
     }
     subtotal = roundMoney(subtotal);
     let discount = 0;

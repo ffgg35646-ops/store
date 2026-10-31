@@ -22,9 +22,14 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     await WalletTransaction.create({ userId: user._id, type: amount > 0 ? "credit" : "adjustment", amount, balanceAfter: user.walletBalance, note: String(body.note || "Administrator wallet adjustment"), createdBy: admin._id });
   }
   if (body.points !== undefined) user.points = Math.max(0, Number(body.points) || 0);
+  if (body.discountPercent !== undefined) {
+    const percent = Number(body.discountPercent);
+    if (!Number.isFinite(percent) || percent < 0 || percent > 100) return NextResponse.json({ error: "Customer discount must be between 0 and 100 percent." }, { status: 400 });
+    user.discountPercent = percent;
+  }
   await user.save();
   if (body.status === "suspended") await notify({ userId: user._id, title: "Account suspended", body: "Your account access has been temporarily suspended. Contact support for help.", type: "system" });
-  return NextResponse.json({ user: { _id: user._id, name: user.name, email: user.email, status: user.status, walletBalance: user.walletBalance, points: user.points } });
+  return NextResponse.json({ user: { _id: user._id, name: user.name, email: user.email, status: user.status, walletBalance: user.walletBalance, points: user.points, discountPercent: user.discountPercent } });
 }
 export async function DELETE(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const admin = await getCurrentUser();

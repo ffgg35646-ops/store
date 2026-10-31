@@ -18,10 +18,11 @@ export async function GET(request: NextRequest) {
   if (params.get("slug")) filter.slug = params.get("slug");
   if (query) filter.$or = [{ title: new RegExp(escapeRegex(query), "i") }, { shortDescription: new RegExp(escapeRegex(query), "i") }];
   const products = await Product.find(filter).populate("categoryId", "name slug").sort({ sortOrder: 1, createdAt: -1 }).limit(100).lean();
+  const personalDiscount = user?.role === "customer" ? Math.min(100, Math.max(0, Number(user.discountPercent || 0))) : 0;
   const ids = products.map((p: any) => p._id);
   const stockRows = await InventoryItem.aggregate([{ $match: { productId: { $in: ids }, status: "available" } }, { $group: { _id: "$productId", count: { $sum: 1 } } }]);
   const stockMap = new Map(stockRows.map((r: any) => [String(r._id), r.count]));
-  return NextResponse.json({ products: products.map((p: any) => ({ ...p, availableStock: stockMap.get(String(p._id)) || 0 })) });
+  return NextResponse.json({ products: products.map((p: any) => ({ ...p, basePrice: p.price, personalDiscountPercent: personalDiscount, price: personalDiscount ? Math.round(Number(p.price) * (1 - personalDiscount / 100) * 100) / 100 : p.price, availableStock: stockMap.get(String(p._id)) || 0 })) });
 }
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();

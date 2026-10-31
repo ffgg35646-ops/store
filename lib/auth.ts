@@ -27,7 +27,7 @@ export async function getCurrentUser() {
   try {
     const { payload } = await jwtVerify(token, secret());
     await dbConnect();
-    const user = await User.findById(payload.sub).select("name email role status walletBalance points").lean();
+    const user = await User.findById(payload.sub).select("name email role status walletBalance points discountPercent").lean();
     if (!user || user.status !== "active") return null;
     return { ...user, _id: String(user._id) };
   } catch {

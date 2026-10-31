@@ -20,7 +20,8 @@
     "stripe": "^18.5.0",
     "web-push": "^3.6.7",
     "@next/env": "15.5.28",
-    "sharp": "^0.35.5"
+    "sharp": "^0.35.5",
+    "nodemailer": "^7.0.10"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -32,6 +33,7 @@
     "tsx": "^4.20.5",
     "typescript": "^5.8.3",
     "@types/web-push": "^3.6.4",
-    "@eslint/eslintrc": "^3.3.1"
+    "@eslint/eslintrc": "^3.3.1",
+    "@types/nodemailer": "^6.4.19"
   }
 }

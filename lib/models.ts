@@ -10,6 +10,9 @@ const UserSchema = new Schema({
   status: { type: String, enum: ["active", "suspended", "deleted"], default: "active" },
   walletBalance: { type: Number, default: 0, min: 0 },
   points: { type: Number, default: 0, min: 0 },
+  discountPercent: { type: Number, default: 0, min: 0, max: 100 },
+  passwordResetTokenHash: { type: String, default: undefined, select: false },
+  passwordResetExpiresAt: { type: Date, default: undefined, select: false },
   lastLoginAt: Date
 }, { timestamps: true });
 

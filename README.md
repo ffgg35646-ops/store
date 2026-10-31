@@ -94,6 +94,8 @@ Subscribe to `checkout.session.completed` and `checkout.session.expired`. Use St
 | `VAPID_PRIVATE_KEY` | Optional | Signs browser push messages |
 | `VAPID_SUBJECT` | Optional | Contact URI for push service (for example mailto:support@example.com) |
 | `NEXT_PUBLIC_STRIPE_ENABLED` | Optional | Shows the card payment option when set to true |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` | Optional | SMTP connection for password reset emails |
+| `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM` | Optional | SMTP login and sender address for password reset emails |
 
 Never commit `.env.local`, database credentials, Stripe secrets or digital inventory.
 
@@ -110,6 +112,6 @@ The GitHub Actions workflow runs dependency installation and a production build 
 
 - Configure real payment credentials and a production MongoDB database before taking live payments.
 - Add a persistent image/CDN provider before enabling direct image uploads; this version accepts image URLs in the admin product/category forms.
-- In-app notifications and chat refresh while the customer/admin pages are open. Browser push is opt-in per customer and works after VAPID keys are configured. Email/SMS delivery is not wired to a provider in this version.
+- In-app notifications and chat refresh while the customer/admin pages are open. Browser push is opt-in per customer and works after VAPID keys are configured. Password reset emails require SMTP configuration; in-app notifications do not require SMTP.
 - The store uses one configured display currency. Configure Stripe-supported currency and product pricing consistently before enabling card checkout.
 - Refunds for wallet orders return funds to the customer wallet. Stripe refunds are sent through Stripe. Manual-transfer refunds must be completed using the original transfer channel by the operator.

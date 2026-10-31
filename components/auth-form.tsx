@@ -32,7 +32,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       {error && <div className="form-error">{error}</div>}
       <button disabled={busy} className="button button-primary button-wide">{busy ? "Please wait..." : mode==="login" ? "Sign in" : "Create account"} <ArrowRight size={17}/></button>
     </form>
-    <div className="auth-switch">{mode==="login" ? <>New here? <Link href="/register">Create an account</Link></> : <>Already have an account? <Link href="/login">Sign in</Link></>}</div>
+    <div className="auth-switch">{mode==="login" ? <><Link href="/forgot-password">Forgot password?</Link><br/>New here? <Link href="/register">Create an account</Link></> : <>Already have an account? <Link href="/login">Sign in</Link></>}</div>
     <div className="auth-safe"><LockKeyhole size={13}/> Your account details are protected.</div>
   </div>;
 }
