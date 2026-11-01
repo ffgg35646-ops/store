@@ -94,9 +94,13 @@ export async function POST() {
     const category = categoryByName.get(name);
     const existingDrafts = await Product.find({ categoryId: category._id, isActive: false, price: 0 }).select("title").lean();
     const existingTitles = new Set(existingDrafts.map((item: any) => String(item.title)));
-    for (let productIndex = 1; productIndex <= 10; productIndex++) {
+    const remainingDrafts = Math.max(0, 10 - existingDrafts.length);
+    let queuedForCategory = 0;
+    for (let productIndex = 1; productIndex <= 10 && queuedForCategory < remainingDrafts; productIndex++) {
       const title = `${name} — Draft product ${String(productIndex).padStart(2, "0")}`;
       if (existingTitles.has(title)) continue;
+      existingTitles.add(title);
+      queuedForCategory++;
       draftProducts.push({
         title,
         slug: slugify(title),
