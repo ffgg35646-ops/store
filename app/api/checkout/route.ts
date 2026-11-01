@@ -16,7 +16,7 @@ function eligibleSubtotalForCoupon(coupon: any, userId: string, items: any[], pr
   const userTargets = ids(coupon.targetUserIds);
   const legacyUserTargets = coupon.targetType === "users" ? ids(coupon.targetIds) : [];
   const allowedUsers = userTargets.length ? userTargets : legacyUserTargets;
-  if (allowedUsers.length && !allowedUsers.includes(userId)) return 0;
+  if ((coupon.targetType === "users" || allowedUsers.length > 0) && !allowedUsers.includes(userId)) return 0;
 
   let productTargets = ids(coupon.targetProductIds);
   let categoryTargets = ids(coupon.targetCategoryIds);
