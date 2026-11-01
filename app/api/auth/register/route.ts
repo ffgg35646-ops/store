@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
 
     const smtp = getSmtpConfiguration();
     const isProduction = process.env.NODE_ENV === "production";
-    if (!smtp.ok && isProduction) {
+    if (isProduction && "errorCode" in smtp) {
       return NextResponse.json(
         { errorCode: smtp.errorCode, ...(smtp.missing ? { missing: smtp.missing } : {}) },
         { status: smtp.status }
