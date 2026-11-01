@@ -96,3 +96,49 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
     </>
   );
 }
+
+
+function CategoryProductRail({ category, products }: { category: any; products: any[] }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [page, setPage] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(products.length / 4));
+
+  useEffect(() => {
+    if (expanded || paused || pageCount < 2) return;
+    const timer = window.setInterval(() => setPage(current => (current + 1) % pageCount), 5000);
+    return () => window.clearInterval(timer);
+  }, [expanded, paused, pageCount]);
+
+  useEffect(() => {
+    if (expanded || !trackRef.current) return;
+    const track = trackRef.current;
+    const firstPage = track.querySelector<HTMLElement>(".category-rail-page");
+    if (!firstPage) return;
+    track.scrollTo({ left: firstPage.getBoundingClientRect().width * page, behavior: "smooth" });
+  }, [page, expanded]);
+
+  const goTo = (next: number) => setPage((next + pageCount) % pageCount);
+  return (
+    <section className="category-stream-section">
+      <div className="category-stream-heading">
+        <div className="category-stream-title">
+          <span className="category-stream-mark"><Boxes size={19}/></span>
+          <div><h3>{category.name}</h3><small>{products.length} منتج</small></div>
+        </div>
+        <div className="category-stream-actions">
+          {pageCount > 1 && <div className="category-rail-dots" aria-label="Product pages">{Array.from({length:pageCount},(_,i)=><button type="button" key={i} className={i===page?"active":""} onClick={()=>goTo(i)} aria-label={`Page ${i+1}`}/>)}</div>}
+          <button type="button" className="category-more-button" onClick={()=>setExpanded(value=>!value)}>{expanded ? "عرض أقل" : "عرض المزيد"} <ArrowUpRight size={14}/></button>
+        </div>
+      </div>
+      {expanded ? <div className="category-expanded-grid">{products.map(product=><ProductCard key={product._id} product={product}/>)}</div> :
+        <div className="category-rail-viewport" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)} onFocusCapture={()=>setPaused(true)} onBlurCapture={()=>setPaused(false)}>
+          <div className="category-rail-track" ref={trackRef}>
+            {Array.from({length:pageCount},(_,index)=><div className="category-rail-page" key={index}>{products.slice(index*4,(index+1)*4).map(product=><ProductCard key={product._id} product={product}/>)}</div>)}
+          </div>
+          {pageCount>1 && <><button type="button" className="category-rail-arrow prev" onClick={()=>goTo(page-1)} aria-label="Previous products"><ChevronRight size={17}/></button><button type="button" className="category-rail-arrow next" onClick={()=>goTo(page+1)} aria-label="Next products"><ChevronLeft size={17}/></button></>}
+        </div>}
+    </section>
+  );
+}
