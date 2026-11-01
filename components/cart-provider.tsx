@@ -113,8 +113,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             <h2 id="auth-required-title">{t("loginRequiredTitle")}</h2>
             <p>{t("loginRequiredDescription")}</p>
             <div className="auth-required-actions">
-              <Link href={registerHref} className="button button-primary button-wide">{t("registerToContinue")}</Link>
-              <Link href={loginHref} className="button button-outline button-wide">{t("loginToContinue")}</Link>
+              <Link href={registerHref} onClick={() => setAuthPromptOpen(false)} className="button button-primary button-wide">{t("registerToContinue")}</Link>
+              <Link href={loginHref} onClick={() => setAuthPromptOpen(false)} className="button button-outline button-wide">{t("loginToContinue")}</Link>
             </div>
           </section>
         </div>
