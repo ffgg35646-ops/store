@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
     const selectedUsers = (campaign.targetUserIds || []).map((id: any) => String(id));
     const legacyUsers = campaign.targetType === "users" ? (campaign.targetIds || []).map((id: any) => String(id)) : [];
     const allowedUsers = selectedUsers.length ? selectedUsers : legacyUsers;
+    if (campaign.targetType === "users" && !allowedUsers.includes(customerId)) return false;
     return !allowedUsers.length || allowedUsers.includes(customerId);
   });
   // Only preview a promotion on individual product cards when it has no order-wide
