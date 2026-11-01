@@ -15,10 +15,10 @@ type SmtpDiagnostic = {
 
 function getSmtpConfiguration():
   | { ok: true; host: string; port: number; secure: boolean; user: string; password: string; from: string }
-  | SmtpDiagnostic {
+  | (SmtpDiagnostic & { ok: false }) {
   const required = ["SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD", "SMTP_FROM"];
   const missing = required.filter((key) => !String(process.env[key] || "").trim());
-  if (missing.length) return { errorCode: "smtpConfigMissing", status: 503, missing };
+  if (missing.length) return { ok: false, errorCode: "smtpConfigMissing", status: 503, missing };
 
   const host = String(process.env.SMTP_HOST).trim();
   const user = String(process.env.SMTP_USER).trim();
@@ -30,19 +30,19 @@ function getSmtpConfiguration():
 
   if (
     !host ||
-    /^(smtp|smtps):\\/\\//i.test(host) ||
-    /\\s/.test(host) ||
+    /^(smtp|smtps):\/\//i.test(host) ||
+    /\s/.test(host) ||
     !Number.isInteger(port) ||
     port < 1 ||
     port > 65535 ||
     !["true", "false"].includes(rawSecure)
   ) {
-    return { errorCode: "smtpSettingsInvalid", status: 503 };
+    return { ok: false, errorCode: "smtpSettingsInvalid", status: 503 };
   }
 
   const fromAddress = (from.match(/<([^<>]+)>/)?.[1] || from).trim();
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(fromAddress)) {
-    return { errorCode: "smtpSenderRejected", status: 503 };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromAddress)) {
+    return { ok: false, errorCode: "smtpSenderRejected", status: 503 };
   }
 
   return { ok: true, host, port, secure: rawSecure === "true", user, password, from };
@@ -65,7 +65,7 @@ function diagnoseSmtpError(error: unknown, stage: "verify" | "send"): SmtpDiagno
 
   if (
     code === "EAUTH" ||
-    /\\b535\\b|\\b534\\b|5\\.7\\.8|invalid login|authentication failed|username and password not accepted|application-specific password/i.test(details)
+    /\b535\b|\b534\b|5\.7\.8|invalid login|authentication failed|username and password not accepted|application-specific password/i.test(details)
   ) {
     return { errorCode: "smtpAuthFailed", status: 502 };
   }
@@ -80,7 +80,7 @@ function diagnoseSmtpError(error: unknown, stage: "verify" | "send"): SmtpDiagno
   if (
     stage === "send" &&
     (command.includes("RCPT TO") ||
-      /recipient|mailbox|user unknown|no such user|unknown user|address rejected|invalid recipient|5\\.1\\.[01]/i.test(details) ||
+      /recipient|mailbox|user unknown|no such user|unknown user|address rejected|invalid recipient|5\.1\.[01]/i.test(details) ||
       err.responseCode === 551 ||
       err.responseCode === 553)
   ) {
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     const confirmPassword = String(body.confirmPassword || "");
 
     if (name.length < 2 || name.length > 80) return NextResponse.json({ error: "Enter a valid name." }, { status: 400 });
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return NextResponse.json({ error: "Enter a valid email." }, { status: 400 });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: "Enter a valid email." }, { status: 400 });
     if (password.length < 8) return NextResponse.json({ error: "Password must be at least 8 characters." }, { status: 400 });
     if (password !== confirmPassword) return NextResponse.json({ error: "Passwords do not match." }, { status: 400 });
     if (await User.exists({ email })) return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
