@@ -29,6 +29,9 @@ export function AdminPanel({section="overview"}:{section:string}) {
   const [deliveryItem,setDeliveryItem]=useState("0");
   const [deliveryValues,setDeliveryValues]=useState("");
   const [query,setQuery]=useState("");
+  const [orderTab,setOrderTab]=useState<"new"|"shipping"|"history">("new");
+  const [expandedOrderId,setExpandedOrderId]=useState("");
+  const [historyPage,setHistoryPage]=useState(1);
   async function load() {
     setError("");
     try {
@@ -94,7 +97,11 @@ export function AdminPanel({section="overview"}:{section:string}) {
   }
   async function orderAction(order:any,action:string){
     const d=await api(`/api/orders/${order._id}`,"PATCH",{action});
-    if(d)setDeliveryOrder(null);
+    if(d){
+      setDeliveryOrder(null);
+      if(action==="ship"){setOrderTab("shipping");setExpandedOrderId(String(order._id));}
+      if(action==="complete"){setOrderTab("history");setHistoryPage(1);setExpandedOrderId(String(order._id));}
+    }
   }
   async function deliver(e:React.FormEvent){
     e.preventDefault();if(!deliveryOrder)return;
@@ -102,6 +109,13 @@ export function AdminPanel({section="overview"}:{section:string}) {
     if(d){setDeliveryOrder(null);setDeliveryValues("");}
   }
   const filtered=data.filter(x=>JSON.stringify(x).toLowerCase().includes(query.toLowerCase()));
+  const newOrders=data.filter((order:any)=>["awaiting_payment","processing","delivered"].includes(order.status)&&order.paymentStatus!=="refunded");
+  const shippingOrders=data.filter((order:any)=>order.status==="shipped");
+  const historyOrders=data.filter((order:any)=>["completed","cancelled","refunded"].includes(order.status));
+  const historyPageSize=6;
+  const historyPages=Math.max(1,Math.ceil(historyOrders.length/historyPageSize));
+  const pagedHistoryOrders=historyOrders.slice((historyPage-1)*historyPageSize,historyPage*historyPageSize);
+  const visibleOrders=orderTab==="new"?newOrders:orderTab==="shipping"?shippingOrders:pagedHistoryOrders;
   const statCards=[["Gross sales",money(stats.revenue||0),"Revenue from paid orders",CircleDollarSign],["Orders",stats.orders||0,"All customer orders",ShoppingCart],["Customers",stats.customers||0,"Active customer accounts",Users],["Products",stats.products||0,"Published products",Package],["Pending payments",stats.pendingOrders||0,"Awaiting confirmation",ArrowDownRight],["Available stock",stats.availableStock||0,"Automatic delivery codes",Warehouse]];
   if(section==="messages")return <ChatClient adminMode/>;
   return <div className="admin-panel">
@@ -126,7 +140,39 @@ export function AdminPanel({section="overview"}:{section:string}) {
       </div>
     </div>}
     {section==="orders"&&deliveryOrder&&<div className="modal-backdrop"><form className="admin-modal" onSubmit={deliver}><div className="data-card-heading"><h2>Deliver {deliveryOrder.orderNumber}</h2><button type="button" onClick={()=>setDeliveryOrder(null)}>×</button></div><label>Product item<select value={deliveryItem} onChange={e=>setDeliveryItem(e.target.value)}>{deliveryOrder.items.map((i:any,n:number)=><option value={n} key={n}>{i.title} · qty {i.quantity}</option>)}</select></label><label>Delivery details<textarea rows={6} required value={deliveryValues} onChange={e=>setDeliveryValues(e.target.value)} placeholder="One account, code or credential per line"/></label><p className="field-help">Only paid orders can be delivered. The customer will receive an in-app notification when all items are ready.</p><button className="button button-primary button-wide" disabled={busy}>Save delivery details</button></form></div>}
-    {section==="orders"&&<div className="admin-list-card full-width-card"><div className="data-card-heading"><h2>All orders</h2><span>{data.length} orders</span></div><div className="admin-record-list">{data.map((o:any)=><div className="admin-record" key={o._id}><div><b>{o.orderNumber}</b><small>{o.userId?.name||o.userId?.email||"Customer"} · {new Date(o.createdAt).toLocaleString()}</small></div><div className="admin-order-meta"><span className={`status-pill status-${o.status}`}>{o.status}</span><b>{money(o.total,o.currency)}</b></div><div className="admin-record-actions"><button onClick={()=>orderAction(o,"approve-payment")} disabled={o.paymentMethod!=="manual"||o.paymentStatus==="paid"} title="Confirm manual payment"><Check size={15}/></button><button onClick={()=>setDeliveryOrder(o)} disabled={o.paymentStatus!=="paid"} title="Manual delivery"><ArrowUpRight size={15}/></button><button onClick={()=>orderAction(o,"retry-delivery")} disabled={o.paymentStatus!=="paid"||o.status!=="processing"} title="Retry automatic delivery"><RefreshCw size={15}/></button><button onClick={()=>orderAction(o,"refund")} disabled={o.paymentStatus!=="paid"} title="Refund"><RefreshCw size={15}/></button><Link href={`/orders/${o._id}`} target="_blank"><ExternalLink size={15}/></Link></div></div>)}{!data.length&&<div className="empty-state compact"><ShoppingCart/><b>No orders yet</b></div>}</div></div>}
+    {section==="orders"&&<div className="admin-list-card full-width-card"><div className="data-card-heading"><div><h2>Order workflow</h2><p className="field-help">Move each paid order from new, to shipping, then to completed history.</p></div><span>{data.length} total</span></div>
+      <div className="admin-order-tabs">
+        <button type="button" className={orderTab==="new"?"active":""} onClick={()=>setOrderTab("new")}><span>1</span> New orders <b>{newOrders.length}</b></button>
+        <button type="button" className={orderTab==="shipping"?"active":""} onClick={()=>setOrderTab("shipping")}><span>2</span> Shipping <b>{shippingOrders.length}</b></button>
+        <button type="button" className={orderTab==="history"?"active":""} onClick={()=>setOrderTab("history")}><span>3</span> Order history <b>{historyOrders.length}</b></button>
+      </div>
+      <div className="admin-record-list admin-order-list">
+        {visibleOrders.map((order:any,index:number)=><article className="admin-order-card" key={order._id}>
+          <div className="admin-order-card-head">
+            <div className="admin-order-number"><span className="admin-order-index">{orderTab==="history"?(historyPage-1)*historyPageSize+index+1:index+1}</span><div><b>{order.orderNumber}</b><small>{order.userId?.name||"Customer"} · {order.userId?.email||""}</small><small>{new Date(order.createdAt).toLocaleString()}</small></div></div>
+            <div className="admin-order-meta"><span className={`status-pill status-${order.status}`}>{order.status?.replace("_"," ")}</span><b>{money(order.total,order.currency)}</b></div>
+            <button type="button" className="button button-outline button-small" onClick={()=>setExpandedOrderId(expandedOrderId===String(order._id)?"":String(order._id))}>{expandedOrderId===String(order._id)?"Hide details":"Details"}</button>
+          </div>
+          {expandedOrderId===String(order._id)&&<div className="admin-order-expanded">
+            <div className="admin-order-detail-meta"><span><small>Customer</small><b>{order.userId?.name||"Customer"}</b><small>{order.userId?.email||"—"}</small></span><span><small>Payment</small><b>{order.paymentStatus}</b><small>{order.paymentMethod}</small></span><span><small>Items</small><b>{order.items?.length||0}</b><small>{order.items?.reduce((sum:number,item:any)=>sum+Number(item.quantity||0),0)||0} unit(s)</small></span></div>
+            <div className="admin-order-items">{order.items?.map((item:any,itemIndex:number)=><div className="admin-order-item" key={itemIndex}><span><b>{item.title}</b>{item.variant&&<small>Option: {item.variant}</small>}<small>Qty {item.quantity} × {money(item.unitPrice,order.currency)}</small></span><b>{money(Number(item.unitPrice||0)*Number(item.quantity||0),order.currency)}</b></div>)}</div>
+            <div className="admin-order-total"><span>Subtotal {money(order.subtotal,order.currency)} · Discount −{money(order.discount,order.currency)}</span><b>Total {money(order.total,order.currency)}</b></div>
+            {order.adminNote&&<p className="field-help">Admin note: {order.adminNote}</p>}
+            <div className="admin-order-detail-actions">
+              {order.paymentStatus!=="paid"&&order.paymentMethod==="manual"&&<button type="button" className="button button-outline" disabled={busy} onClick={()=>orderAction(order,"approve-payment")}><Check size={15}/> Confirm payment</button>}
+              {order.paymentStatus!=="paid"&&order.paymentMethod!=="manual"&&<span className="field-help">Awaiting confirmed payment before shipping.</span>}
+              {order.paymentStatus==="paid"&&orderTab==="new"&&<button type="button" className="button button-primary" disabled={busy} onClick={()=>orderAction(order,"ship")}><ArrowUpRight size={16}/> Confirm shipment</button>}
+              {orderTab==="new"&&order.paymentStatus==="paid"&&<button type="button" className="button button-outline" onClick={()=>setDeliveryOrder(order)}>Enter delivery details</button>}
+              {orderTab==="new"&&order.paymentStatus==="paid"&&order.status==="processing"&&<button type="button" className="button button-outline" disabled={busy} onClick={()=>orderAction(order,"retry-delivery")}><RefreshCw size={15}/> Retry digital delivery</button>}
+              {orderTab==="shipping"&&order.status==="shipped"&&<button type="button" className="button button-primary" disabled={busy} onClick={()=>orderAction(order,"complete")}><Check size={16}/> Mark order completed</button>}
+              {order.paymentStatus==="paid"&&!["completed","cancelled","refunded"].includes(order.status)&&<button type="button" className="text-button danger-text" disabled={busy} onClick={()=>{if(window.confirm("Refund this paid order?"))orderAction(order,"refund");}}>Refund order</button>}
+            </div>
+          </div>}
+        </article>)}
+        {!visibleOrders.length&&<div className="empty-state compact"><ShoppingCart/><b>{orderTab==="new"?"No new orders":orderTab==="shipping"?"No orders in shipping":"No completed orders in history"}</b><span>Orders will appear here automatically after customers check out.</span></div>}
+      </div>
+      {orderTab==="history"&&historyPages>1&&<div className="admin-pagination"><button type="button" className="button button-outline button-small" disabled={historyPage===1} onClick={()=>setHistoryPage(p=>Math.max(1,p-1))}>Previous</button>{Array.from({length:historyPages},(_,i)=>i+1).map(page=><button type="button" key={page} className={historyPage===page?"active":""} onClick={()=>{setHistoryPage(page);setExpandedOrderId("");}}>{page}</button>)}<button type="button" className="button button-outline button-small" disabled={historyPage===historyPages} onClick={()=>setHistoryPage(p=>Math.min(historyPages,p+1))}>Next</button></div>}
+    </div>}
     {section==="users"&&<div className="admin-list-card full-width-card"><div className="data-card-heading"><h2>Customers</h2><div className="admin-record-actions"><span>{data.length} accounts</span><button className="button button-primary" onClick={createCustomer}><Plus size={14}/> Add customer</button></div></div><div className="admin-list-search"><Search size={15}/><input placeholder="Search customers..." value={query} onChange={e=>setQuery(e.target.value)}/></div><div className="admin-record-list">{filtered.map((u:any)=><div className="admin-user-row" key={u._id}><span className="admin-avatar">{u.name?.charAt(0)||"U"}</span><div className="admin-user-details"><b>{u.name}</b><small>{u.email} · {u.orderCount||0} orders · {money(u.lifetimeSpend||0)}</small><small>Wallet: {money(u.walletBalance||0)} · {u.points||0} points · {Number(u.discountPercent||0)}% personal discount</small></div><span className={u.status==="active"?"status-pill status-delivered":"status-pill status-cancelled"}>{u.status}</span><div className="admin-record-actions"><button onClick={()=>{const amount=window.prompt("Wallet adjustment (positive to credit, negative to debit):");if(amount!==null)userAction(u,{walletAdjustment:Number(amount),note:"Admin wallet adjustment"});}} title="Adjust wallet"><CircleDollarSign size={15}/></button><button onClick={()=>{const value=window.prompt("Personal discount percentage for this customer (0-100):",String(u.discountPercent||0));if(value!==null)userAction(u,{discountPercent:Number(value)});}} title="Set personal discount"><BadgePercent size={15}/></button><button onClick={()=>userAction(u,{status:u.status==="active"?"suspended":"active"})} title="Suspend / activate"><ShieldCheck size={15}/></button><button className="danger-icon" onClick={()=>{if(window.confirm("Deactivate this customer and anonymize personal identifiers?"))api(`/api/admin/users/${u._id}`,"DELETE");}} title="Remove customer"><Trash2 size={15}/></button></div></div>)}{!filtered.length&&<div className="empty-state compact"><Users/><b>No customers found</b></div>}</div></div>}
   </div>;
 }
