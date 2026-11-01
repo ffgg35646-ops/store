@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, BadgeCheck, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/cart-provider";
 import { useLanguage } from "@/components/language-provider";
+import { localizeCustomerCopy } from "@/components/customer-localization";
 
 export function money(value: number, currency = "USD") {
   try { return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(value); }
@@ -12,7 +13,7 @@ export function money(value: number, currency = "USD") {
 
 export function ProductCard({ product }: { product: any }) {
   const cart = useCart();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const basePrice = Number(product.basePrice ?? product.price);
   const oldPrice = Number(product.compareAtPrice || 0) > Number(product.price) ? Number(product.compareAtPrice) : basePrice;
   const sale = oldPrice > Number(product.price);
@@ -28,7 +29,7 @@ export function ProductCard({ product }: { product: any }) {
         <Link href={`/product/${product.slug}`} className="product-title">{product.title}</Link>
         <p className="product-desc">{product.shortDescription || t("instantAccess")}</p>
         <div className="product-bottom">
-          <div><strong className="product-price">{money(Number(product.price), product.currency)}</strong>{sale && <del className="product-old-price">{money(oldPrice, product.currency)}</del>}{product.personalDiscountPercent>0&&<small className="personal-discount-pill">-{product.personalDiscountPercent}% member price</small>}</div>
+          <div><strong className="product-price">{money(Number(product.price), product.currency)}</strong>{sale && <del className="product-old-price">{money(oldPrice, product.currency)}</del>}{product.personalDiscountPercent>0&&<small className="personal-discount-pill">-{product.personalDiscountPercent}% {localizeCustomerCopy("member price",language)}</small>}</div>
           <button className="icon-button add-cart" aria-label={t("addToCart")} onClick={() => void cart.add({ productId: product._id, title: product.title, slug: product.slug, image: product.image, price: Number(product.price), currency: product.currency || "USD", variant: product.colors?.[0]?.name || "" })}><ShoppingCart size={17}/></button>
         </div>
       </div>

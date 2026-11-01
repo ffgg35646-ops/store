@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Boxes, Headphones, ShieldCheck, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { useLanguage } from "@/components/language-provider";
+import { localizeCustomerCopy } from "@/components/customer-localization";
 
 export function Storefront({ initialQuery = "", initialCategory = "" }: { initialQuery?: string; initialCategory?: string }) {
   const { t, language } = useLanguage();
@@ -58,7 +59,7 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
           <p>{slides[slideIndex].description}</p>
           <div className="hero-slider-controls" aria-label="Featured slides"><button type="button" onClick={()=>setSlideIndex(index=>(index+slides.length-1)%slides.length)} aria-label="Previous slide"><ChevronLeft size={16}/></button>{slides.map((slide,index)=><button type="button" key={slide.badge} className={index===slideIndex?"active":""} onClick={()=>setSlideIndex(index)} aria-label={`Go to slide ${index+1}`}/>) }<button type="button" onClick={()=>setSlideIndex(index=>(index+1)%slides.length)} aria-label="Next slide"><ChevronRight size={16}/></button></div>
           <div className="hero-actions"><a href="#catalog" className="button button-primary">{t("exploreCatalog")} <ArrowUpRight size={17}/></a><Link href="/chat" className="button button-ghost">{t("chatSupport")}</Link></div>
-          <div className="hero-proof"><span><ShieldCheck size={15}/> Secure checkout</span><span><Zap size={15}/> Fast delivery</span><span><Headphones size={15}/> Human support</span></div>
+          <div className="hero-proof"><span><ShieldCheck size={15}/> {localizeCustomerCopy("Secure checkout",language)}</span><span><Zap size={15}/> {localizeCustomerCopy("Fast delivery",language)}</span><span><Headphones size={15}/> {localizeCustomerCopy("Human support",language)}</span></div>
         </div>
         <div className="hero-art"><div className="hero-image-carousel"><img key={heroImageIndex} className="hero-carousel-image" src={heroImages[heroImageIndex]} alt="Digital products and technology"/><div className="hero-image-shade"/><div className="hero-image-caption"><span className="hero-image-count">{String(heroImageIndex+1).padStart(2,"0")} / 10</span><strong>{t("curatedEssentials")}</strong><small>{t("marketplace")}</small></div><div className="hero-image-controls"><button type="button" aria-label="Previous image" onClick={()=>setHeroImageIndex(index=>(index+heroImages.length-1)%heroImages.length)}>‹</button><button type="button" aria-label="Next image" onClick={()=>setHeroImageIndex(index=>(index+1)%heroImages.length)}>›</button></div><div className="hero-image-dots">{heroImages.map((_,index)=><button type="button" key={index} aria-label={"Show image "+(index+1)} className={index===heroImageIndex?"active":""} onClick={()=>setHeroImageIndex(index)}/>)}</div></div></div>
         <div className="hero-grid-pattern"/>
