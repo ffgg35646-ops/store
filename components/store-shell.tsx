@@ -104,7 +104,7 @@ export function StoreHeader() {
           {!isCustomer && <button className="mobile-toggle" onClick={()=>setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">{mobileOpen ? <X/> : <Menu/>}</button>}
         </div>
       </div>
-      {mobileOpen && {!isCustomer && mobileOpen && <div className="mobile-nav"><Link href="/" onClick={()=>setMobileOpen(false)}>{t("discover")}</Link><Link href="/#catalog" onClick={()=>setMobileOpen(false)}>{t("catalog")}</Link><Link href="/#deals" onClick={()=>setMobileOpen(false)}>{t("deals")}</Link><Link href="/chat" onClick={()=>setMobileOpen(false)}><MessageCircle size={16}/> {t("support")}</Link><Link href="/login" onClick={()=>setMobileOpen(false)}>{t("signIn")}</Link><form onSubmit={submitSearch}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><button><Search size={16}/></button></form></div>}}
+      {!isCustomer && mobileOpen && <div className="mobile-nav"><Link href="/" onClick={()=>setMobileOpen(false)}>{t("discover")}</Link><Link href="/#catalog" onClick={()=>setMobileOpen(false)}>{t("catalog")}</Link><Link href="/#deals" onClick={()=>setMobileOpen(false)}>{t("deals")}</Link><Link href="/chat" onClick={()=>setMobileOpen(false)}><MessageCircle size={16}/> {t("support")}</Link><Link href="/login" onClick={()=>setMobileOpen(false)}>{t("signIn")}</Link><form onSubmit={submitSearch}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><button><Search size={16}/></button></form></div>}
     </header>
     {user?.role === "customer" && <CustomerSidebar user={user}/>}
     </>
