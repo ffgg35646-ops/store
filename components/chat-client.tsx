@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, Headphones, MessageCircle, Send, UserRound } from "lucide-react";
 import { PageIntro } from "@/components/store-shell";
+import { useLanguage } from "@/components/language-provider";
 
 export function ChatClient({ adminMode=false }: {adminMode?:boolean}) {
+  const { t } = useLanguage();
   const [conversations,setConversations]=useState<any[]>([]);
   const [selected,setSelected]=useState<any>(null);
   const [messages,setMessages]=useState<any[]>([]);
   const [text,setText]=useState("");
-  const [subject,setSubject]=useState("");
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
   const [user,setUser]=useState<any>(null);
@@ -35,9 +36,9 @@ export function ChatClient({ adminMode=false }: {adminMode?:boolean}) {
   async function createConversation(e:React.FormEvent) {
     e.preventDefault();setBusy(true);setError("");
     try{
-      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:subject||"Customer support"})});
+      const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subject:t("supportChat")})});
       const data=await response.json();if(!response.ok)throw new Error(data.error||"Unable to start chat.");
-      setSubject("");await loadConversations();await openConversation(data.conversation);
+      await loadConversations();await openConversation(data.conversation);
     }catch(err:any){setError(err.message);}finally{setBusy(false);}
   }
   async function sendMessage(e:React.FormEvent) {
@@ -54,7 +55,7 @@ export function ChatClient({ adminMode=false }: {adminMode?:boolean}) {
     <div className="chat-layout">
       <aside className={selected?"chat-sidebar mobile-hidden":"chat-sidebar"}>
         <div className="chat-side-heading"><div><Headphones/><b>{adminMode?"Customer inbox":"Your conversations"}</b></div><span>{conversations.length}</span></div>
-        {!adminMode&&<form onSubmit={createConversation} className="new-chat-form"><input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="What can we help with?"/><button disabled={busy}>Start a chat</button></form>}
+        {!adminMode&&<form onSubmit={createConversation} className="new-chat-form"><button disabled={busy}>{t("startChatWithSupport")}</button></form>}
         <div className="conversation-list">{conversations.map(c=><button key={c._id} onClick={()=>openConversation(c)} className={selected?._id===c._id?"conversation-item active":"conversation-item"}><span className="conversation-avatar"><UserRound size={17}/></span><span className="conversation-meta"><b>{adminMode?(c.userId?.name||"Customer"):c.subject}</b><small>{c.lastMessage||c.subject}</small><small>{new Date(c.lastMessageAt||c.createdAt).toLocaleString()}</small></span><i className="unread-count">{adminMode?c.adminUnread:c.customerUnread}</i></button>)}
           {!conversations.length&&<div className="empty-state compact"><MessageCircle/><b>No conversations yet</b><span>{adminMode?"New customer chats will appear here.":"Start a conversation with our team."}</span></div>}
         </div>
