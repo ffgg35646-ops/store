@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
   }
   if (isCustomerAuthPage(pathname)) {
     if (role === "admin") return NextResponse.redirect(new URL("/admin", request.url));
-    if (role === "customer") return NextResponse.redirect(new URL("/account", request.url));
+    if (role === "customer") return NextResponse.redirect(new URL("/", request.url));
   }
   return NextResponse.next();
 }
