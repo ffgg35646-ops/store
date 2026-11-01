@@ -24,6 +24,26 @@ img{max-width:100%;display:block}
 .header-actions{display:flex;align-items:center;gap:12px}
 .header-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;color:#626a79;position:relative}
 .header-icon:hover{background:var(--accent-soft);color:var(--accent)}
+.notification-menu{position:relative;display:flex;align-items:center}
+.notification-trigger{border:0;background:transparent;padding:0}
+.notification-panel{position:absolute;top:48px;right:0;width:360px;max-width:calc(100vw - 28px);background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px rgba(30,35,55,.16);z-index:90;overflow:hidden}
+.notification-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid var(--line)}
+.notification-panel-head b{font-size:13px;color:var(--ink)}
+.notification-panel-head span{font-size:10px;color:var(--muted)}
+.notification-panel-list{max-height:360px;overflow-y:auto}
+.notification-preview-row{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid #f0f1f4;color:var(--ink);text-align:start;transition:background .15s}
+.notification-preview-row:hover{background:#faf9ff}
+.notification-preview-row.unread{background:#f7f5ff}
+.notification-preview-indicator{flex:0 0 7px;width:7px;height:7px;border-radius:50%;background:transparent;margin-top:6px}
+.notification-preview-row.unread .notification-preview-indicator{background:var(--accent)}
+.notification-preview-copy{min-width:0;flex:1;display:grid;gap:3px}
+.notification-preview-copy b{font-size:11px;font-weight:700}
+.notification-preview-copy>span{font-size:11px;line-height:1.5;color:#626a79;overflow-wrap:anywhere}
+.notification-preview-copy small{font-size:9px;color:#9aa0ac}
+.notification-preview-check{flex:0 0 auto;color:var(--green);margin-top:2px}
+.notification-preview-empty{min-height:120px;display:grid;place-content:center;justify-items:center;gap:8px;color:#9299a4;font-size:11px}
+.notification-panel-footer{display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;border-top:1px solid var(--line);color:var(--accent);font-size:11px;font-weight:700}
+html[dir=rtl] .notification-panel{right:auto;left:0}
 .notification-dot,.cart-count{position:absolute;right:-3px;top:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#ef6474;color:#fff;font-size:9px;font-weight:700;display:grid;place-items:center;font-style:normal;border:2px solid #fff}
 .cart-count{background:var(--accent)}
 .user-menu{position:relative}
