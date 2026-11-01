@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Boxes, Flame, Headphones, ShieldCheck, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
@@ -70,12 +70,27 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
         <section className="section-block" id="categories"><div className="section-heading"><div><span className="eyebrow">{t("browseYourWay")}</span><h2>{t("exploreCategories")}</h2></div><span className="heading-note">{t("findExactly")}</span></div>
           {categoryCounts.length ? <div className="category-grid">{categoryCounts.map((c:any)=><Link href={`/?category=${c._id}#catalog`} key={c._id} className="category-card">{c.image ? <img src={c.image} alt=""/> : <div className="category-placeholder"><Boxes size={24}/></div>}<div><b>{c.name}</b><small>{c.count} {t("products")}</small></div><ArrowUpRight size={17}/></Link>)}</div> : <div className="empty-state compact"><Boxes/><b>{t("categoriesComing")}</b><span>{t("preparingCatalog")}</span></div>}
         </section>
-        <section className="section-block" id="deals"><div className="section-heading"><div><span className="eyebrow">{t("handPicked")}</span><h2><Flame className="title-icon"/> {t("featuredPicks")}</h2></div><span className="heading-note">{t("popularChoices")}</span></div>
-          {top.length ? <div className="product-grid">{top.slice(0,4).map(p=><ProductCard key={p._id} product={p}/>)}</div> : hasLoaded ? <div className="empty-state"><Sparkles/><b>{t("newDiscoveries")}</b><span>{t("firstFeatured")}</span></div> : null}
-        </section>
-        <section className="catalog-section" id="catalog"><div className="section-heading"><div><span className="eyebrow">{t("fullCollection")}</span><h2>{t("browseCatalog")}</h2><p>{t("exploreEverything")}</p></div><div className="catalog-search"><input placeholder={t("filterCatalog")} value={query} onChange={e=>setQuery(e.target.value)}/></div></div>
-          {visible.length ? <div className="product-grid">{visible.map(p=><ProductCard key={p._id} product={p}/>)}</div> : hasLoaded ? <div className="empty-state"><Boxes/><b>{t("noProducts")}</b><span>{t("tryAnotherSearch")}</span></div> : null}
-        </section>
+        {query || category ? (
+          <section className="catalog-section" id="catalog">
+            <div className="section-heading">
+              <div><span className="eyebrow">{t("fullCollection")}</span><h2>{t("browseCatalog")}</h2><p>{t("exploreEverything")}</p></div>
+              <div className="catalog-search"><input placeholder={t("filterCatalog")} value={query} onChange={e=>setQuery(e.target.value)}/></div>
+            </div>
+            {visible.length ? <div className="product-grid">{visible.map(p=><ProductCard key={p._id} product={p}/>)}</div> : hasLoaded ? <div className="empty-state"><Boxes/><b>{t("noProducts")}</b><span>{t("tryAnotherSearch")}</span></div> : null}
+          </section>
+        ) : (
+          <section className="category-stream" id="catalog">
+            <div className="category-stream-top">
+              <div><span className="eyebrow">{t("fullCollection")}</span><h2>{t("browseCatalog")}</h2><p>{t("exploreEverything")}</p></div>
+              <div className="catalog-search"><input placeholder={t("filterCatalog")} value={query} onChange={e=>setQuery(e.target.value)}/></div>
+            </div>
+            {categoryCounts.map((c:any) => {
+              const items = products.filter(p=>String(p.categoryId?._id || p.categoryId)===String(c._id));
+              return items.length ? <CategoryProductRail key={c._id} category={c} products={items} /> : null;
+            })}
+            {hasLoaded && !categoryCounts.some((c:any)=>products.some(p=>String(p.categoryId?._id || p.categoryId)===String(c._id))) ? <div className="empty-state"><Boxes/><b>{t("noProducts")}</b></div> : null}
+          </section>
+        )}
         <section className="support-banner"><div className="support-symbol"><Headphones size={27}/></div><div><span className="eyebrow">{t("needHand")}</span><h2>{t("notSureFits")}</h2><p>{t("supportDescription")}</p></div><Link href="/chat" className="button button-primary">{t("chatSupport")} <ArrowRight size={16}/></Link></section>
       </main>
     </>
