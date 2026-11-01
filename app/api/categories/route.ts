@@ -9,7 +9,23 @@ export async function GET(request: NextRequest) {
   const user = await getCurrentUser();
   const includeInactive = request.nextUrl.searchParams.get("includeInactive") === "1" && user?.role === "admin";
   const categories = await Category.find(includeInactive ? {} : { isActive: true }).sort({ sortOrder: 1, name: 1 }).lean();
-  return NextResponse.json({ categories });
+  const iconFor = (category: any) => {
+    if (category.icon && category.icon !== "boxes") return category.icon;
+    const key = `${category.slug || ""} ${category.name || ""}`.toLowerCase();
+    if (/apple|iphone|ipad|mobile|phone/.test(key)) return "smartphone";
+    if (/netflix|stream|shahid|tv|movie|cinema/.test(key)) return "tv";
+    if (/game|playstation|xbox|steam/.test(key)) return "gamepad-2";
+    if (/software|office|windows|productivity|tool/.test(key)) return "code-2";
+    if (/gift|top.?up|card/.test(key)) return "gift";
+    if (/music|audio|spotify/.test(key)) return "music";
+    if (/ai|artificial|premium/.test(key)) return "sparkles";
+    if (/security|vpn|antivirus/.test(key)) return "shield-check";
+    if (/cloud|storage|drive/.test(key)) return "cloud";
+    if (/device|computer|laptop|monitor|tablet/.test(key)) return "monitor";
+    if (/home|appliance|kitchen/.test(key)) return "home";
+    return category.icon || "boxes";
+  };
+  return NextResponse.json({ categories: categories.map((category: any) => ({ ...category, icon: iconFor(category) })) });
 }
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
