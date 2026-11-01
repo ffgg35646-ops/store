@@ -20,6 +20,7 @@ export function StoreHeader() {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isCustomer = user?.role === "customer";
   useEffect(() => {
     if (pathname.startsWith("/admin") || pathname === "/admin-login") return;
     let active = true;
@@ -68,15 +69,18 @@ export function StoreHeader() {
   if (pathname.startsWith("/admin") || pathname === "/admin-login") return null;
   return (
     <>
-    <header className="site-header">
+    <header className={isCustomer ? "site-header site-header-internal" : "site-header site-header-public"}>
       <div className="header-inner">
         <Link href="/" className="brand"><span className="brand-mark">N</span><span>{storeName}<small>{t("marketplace")}</small></span></Link>
-        <nav className="desktop-nav">
-          <Link className={pathname === "/" ? "active" : ""} href="/">{t("discover")}</Link>
-          <Link href="/#catalog">{t("catalog")}</Link>
-          <Link href="/#deals">{t("deals")}</Link>
-        </nav>
-        <form className="header-search" onSubmit={submitSearch}><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><kbd>↵</kbd></form>
+        {!isCustomer && <>
+          <nav className="desktop-nav">
+            <Link className={pathname === "/" ? "active" : ""} href="/">{t("discover")}</Link>
+            <Link href="/#catalog">{t("catalog")}</Link>
+            <Link href="/#deals">{t("deals")}</Link>
+          </nav>
+          <form className="header-search" onSubmit={submitSearch}><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><kbd>↵</kbd></form>
+        </>}
+        {isCustomer && <div className="internal-header-title">{language === "ar" ? "مساحة العميل" : "CUSTOMER AREA"}</div>}
         <div className="header-actions">
           <button type="button" className="language-toggle" onClick={()=>setLanguage(language==="en"?"ar":"en")} aria-label={t("language")} title={t("language")}><Languages size={17}/><span>{language==="en"?"العربية":"English"}</span></button>
           {user?.role !== "admin" && <div className="notification-menu">
@@ -97,10 +101,10 @@ export function StoreHeader() {
           </div>}
           {user?.role !== "admin" && <Link href="/cart" className="header-icon cart-icon" aria-label={t("cart")}><ShoppingBag size={19}/>{cart.count > 0 && <i className="cart-count">{cart.count}</i>}</Link>}
           {user ? <div className="user-menu"><Link href={user.role === "admin" ? "/admin" : "/account"} className="account-link"><CircleUserRound size={18}/><span>{user.name?.split(" ")[0]}</span><ChevronDown size={14}/></Link><div className="user-dropdown">{user.role === "admin" ? <Link href="/admin">{t("adminDashboard")}</Link> : <><Link href="/account">{t("myAccount")}</Link><Link href="/orders">{t("myOrders")}</Link><Link href="/chat">{t("supportChat")}</Link></>}<button onClick={logout}><LogOut size={15}/> {t("signOut")}</button></div></div> : <Link href="/login" className="button button-small">{t("signIn")}</Link>}
-          <button className="mobile-toggle" onClick={()=>setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">{mobileOpen ? <X/> : <Menu/>}</button>
+          {!isCustomer && <button className="mobile-toggle" onClick={()=>setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">{mobileOpen ? <X/> : <Menu/>}</button>}
         </div>
       </div>
-      {mobileOpen && <div className="mobile-nav"><Link href="/" onClick={()=>setMobileOpen(false)}>{t("discover")}</Link><Link href="/#catalog" onClick={()=>setMobileOpen(false)}>{t("catalog")}</Link><Link href="/#deals" onClick={()=>setMobileOpen(false)}>{t("deals")}</Link>{user?.role !== "admin" && <Link href="/chat" onClick={()=>setMobileOpen(false)}><MessageCircle size={16}/> {t("support")}</Link>}<Link href={user?.role === "admin" ? "/admin" : user ? "/account" : "/login"} onClick={()=>setMobileOpen(false)}>{user?.role === "admin" ? t("adminDashboard") : t("myAccount")}</Link><form onSubmit={submitSearch}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><button><Search size={16}/></button></form></div>}
+      {mobileOpen && {!isCustomer && mobileOpen && <div className="mobile-nav"><Link href="/" onClick={()=>setMobileOpen(false)}>{t("discover")}</Link><Link href="/#catalog" onClick={()=>setMobileOpen(false)}>{t("catalog")}</Link><Link href="/#deals" onClick={()=>setMobileOpen(false)}>{t("deals")}</Link><Link href="/chat" onClick={()=>setMobileOpen(false)}><MessageCircle size={16}/> {t("support")}</Link><Link href="/login" onClick={()=>setMobileOpen(false)}>{t("signIn")}</Link><form onSubmit={submitSearch}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><button><Search size={16}/></button></form></div>}}
     </header>
     {user?.role === "customer" && <CustomerSidebar user={user}/>}
     </>
