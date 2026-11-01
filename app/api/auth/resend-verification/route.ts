@@ -3,6 +3,7 @@ import { randomBytes, createHash } from "node:crypto";
 import nodemailer from "nodemailer";
 import { dbConnect } from "@/lib/db";
 import { User } from "@/lib/models";
+import { buildVerificationEmail } from "@/lib/verification-email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,12 +16,20 @@ export async function POST(request: NextRequest) {
     if (!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD && process.env.SMTP_FROM)) return NextResponse.json({ error: "Email delivery is not configured. Please contact support." }, { status: 503 });
     const token = randomBytes(32).toString("hex");
     user.emailVerificationTokenHash = createHash("sha256").update(token).digest("hex");
-    user.emailVerificationExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    user.emailVerificationExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
     const base = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
     const verifyUrl = `${base}/verify-email?token=${token}`;
     const transport = nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT || 587), secure: String(process.env.SMTP_SECURE || "false") === "true", auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD } });
-    await transport.sendMail({ from: process.env.SMTP_FROM, to: user.email, subject: "Verify your Nova Digital email", text: `Verify your email within 24 hours: ${verifyUrl}`, html: `<p>Verify your Nova Digital email address.</p><p><a href="${verifyUrl}">Verify my email</a></p><p>This link expires in 24 hours.</p>` });
+    try {
+      await transport.sendMail({
+        from: process.env.SMTP_FROM,
+        to: user.email,
+        ...buildVerificationEmail(user.name, verifyUrl),
+      });
+    } finally {
+      transport.close();
+    }
     return NextResponse.json({ success: true, message: "Verification email sent." });
   } catch (error) {
     console.error("resend-verification", error);
