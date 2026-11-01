@@ -12,7 +12,7 @@ export function OrderDetailClient({ id }: {id:string}) {
   const { language, t } = useLanguage();
   const [order,setOrder]=useState<any>(null);
   const [error,setError]=useState("");
-  useEffect(()=>{fetch(`/api/orders/${id}?lang=${language}`).then(r=>r.json()).then(d=>{if(!d.order)throw new Error(localizeCustomerError(d.error||"Order not found",language,t));setOrder(d.order);}).catch(e=>setError(e.message));},[id]);
+  useEffect(()=>{fetch(`/api/orders/${id}?lang=${language}`).then(r=>r.json()).then(d=>{if(!d.order)throw new Error(localizeCustomerError(d.error||"Order not found",language,t));setOrder(d.order);}).catch(e=>setError(e.message));},[id,language,t]);
   if(error)return <main className="main-content narrow-page"><div className="empty-state"><PackageCheck/><b>{error}</b><Link href="/orders" className="button button-primary">{localizeCustomerCopy("Back to account",language)}</Link></div></main>;
   if(!order)return <main className="main-content narrow-page"><div className="loading-block"/></main>;
   const delivered=order.items?.every((item:any)=>item.deliveredData?.length>=item.quantity);
