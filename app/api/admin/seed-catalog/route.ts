@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
-import { Category, Coupon, Product } from "@/lib/models";
+import { Category, Coupon, Order, Product } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { slugify } from "@/lib/store";
 
@@ -27,8 +27,6 @@ const starterCategories = [
   ["Home Appliances & Electronics", "Home appliances, headphones, screens, chargers and electronics."]
 ] as const;
 
-// Move the previous starter-catalog categories into the new 20-category structure.
-// Products and coupon targeting are reassigned before the legacy category is removed.
 const legacyCategoryAliases = [
   ["Streaming Accounts", "Streaming & TV"],
   ["Gaming Accounts", "Gaming & Gift Cards"],
@@ -39,6 +37,8 @@ const legacyCategoryAliases = [
   ["Gift Cards & Top-ups", "Gaming & Gift Cards"]
 ] as const;
 
+const draftDescription = "Unpublished catalog draft. Add the real product name, images, price, colors, delivery instructions and available stock before making it visible.";
+
 export async function POST() {
   const admin = await getCurrentUser();
   if (admin?.role !== "admin") return NextResponse.json({ error: "Admin access required." }, { status: 403 });
@@ -48,6 +48,7 @@ export async function POST() {
   let categoriesUpdated = 0;
   let legacyCategoriesMerged = 0;
   let productsCreated = 0;
+  let unusedDraftsRemoved = 0;
   const categoryByName = new Map<string, any>();
 
   for (let index = 0; index < starterCategories.length; index++) {
@@ -59,22 +60,14 @@ export async function POST() {
       categoriesCreated++;
     } else {
       let changed = false;
-      if (!category.description) {
-        category.description = description;
-        changed = true;
-      }
-      if (!Number(category.sortOrder)) {
-        category.sortOrder = index + 1;
-        changed = true;
-      }
-      if (changed) {
-        await category.save();
-        categoriesUpdated++;
-      }
+      if (!category.description) { category.description = description; changed = true; }
+      if (Number(category.sortOrder) !== index + 1) { category.sortOrder = index + 1; changed = true; }
+      if (changed) { await category.save(); categoriesUpdated++; }
     }
     categoryByName.set(name, category);
   }
 
+  // Move any earlier starter-catalog products into the matching new category.
   for (const [legacyName, targetName] of legacyCategoryAliases) {
     const legacy = await Category.findOne({ name: legacyName });
     const target = categoryByName.get(targetName);
@@ -89,23 +82,48 @@ export async function POST() {
     legacyCategoriesMerged++;
   }
 
-  const draftProducts: any[] = [];
+  // Create 20 unpublished drafts in Apple Services and 3 drafts in every other section.
+  // Only remove untouched, generated placeholder drafts if the old seed made too many.
   for (const [name] of starterCategories) {
     const category = categoryByName.get(name);
-    const existingDrafts = await Product.find({ categoryId: category._id, isActive: false, price: 0 }).select("title").lean();
-    const existingTitles = new Set(existingDrafts.map((item: any) => String(item.title)));
-    const remainingDrafts = Math.max(0, 10 - existingDrafts.length);
-    let queuedForCategory = 0;
-    for (let productIndex = 1; productIndex <= 10 && queuedForCategory < remainingDrafts; productIndex++) {
+    const targetCount = name === "Apple Services" ? 20 : 3;
+    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const titlePattern = new RegExp(`^${escapedName} — Draft product [0-9]{2}$`);
+    const generated = await Product.find({
+      categoryId: category._id,
+      title: titlePattern,
+      isActive: false,
+      price: 0,
+      image: "",
+      shortDescription: "Draft item — add the real product details before publishing.",
+      description: draftDescription
+    }).sort({ title: 1 }).lean();
+
+    if (generated.length > targetCount) {
+      const excess = generated.slice(targetCount);
+      const excessIds = excess.map((item: any) => item._id);
+      const usedIds = new Set((await Order.distinct("items.productId", { "items.productId": { $in: excessIds } })).map((id: any) => String(id)));
+      const removableIds = excessIds.filter((id: any) => !usedIds.has(String(id)));
+      if (removableIds.length) {
+        const deleted = await Product.deleteMany({ _id: { $in: removableIds } });
+        unusedDraftsRemoved += deleted.deletedCount || 0;
+      }
+    }
+
+    const keptTitles = new Set(generated.slice(0, targetCount).map((item: any) => String(item.title)));
+    let draftsForCategory = generated.filter((item: any) => keptTitles.has(String(item.title))).length;
+    for (let productIndex = 1; productIndex <= targetCount && draftsForCategory < targetCount; productIndex++) {
       const title = `${name} — Draft product ${String(productIndex).padStart(2, "0")}`;
-      if (existingTitles.has(title)) continue;
-      existingTitles.add(title);
-      queuedForCategory++;
-      draftProducts.push({
+      if (keptTitles.has(title)) continue;
+      const baseSlug = slugify(title);
+      let slug = baseSlug;
+      let suffix = 1;
+      while (await Product.exists({ slug })) slug = `${baseSlug}-${suffix++}`;
+      await Product.create({
         title,
-        slug: slugify(title),
+        slug,
         shortDescription: "Draft item — add the real product details before publishing.",
-        description: "Unpublished catalog draft. Add the real product name, images, price, colors, delivery instructions and available stock before making it visible.",
+        description: draftDescription,
         categoryId: category._id,
         price: 0,
         currency: process.env.NEXT_PUBLIC_STORE_CURRENCY || "USD",
@@ -114,19 +132,10 @@ export async function POST() {
         isActive: false,
         sortOrder: productIndex
       });
+      keptTitles.add(title);
+      draftsForCategory++;
+      productsCreated++;
     }
-  }
-
-  if (draftProducts.length) {
-    const existingSlugs = new Set((await Product.find({ slug: { $in: draftProducts.map((item) => item.slug) } }).select("slug").lean()).map((item: any) => String(item.slug)));
-    for (const item of draftProducts) {
-      const base = item.slug;
-      let suffix = 1;
-      while (existingSlugs.has(item.slug)) item.slug = `${base}-${suffix++}`;
-      existingSlugs.add(item.slug);
-    }
-    const created = await Product.insertMany(draftProducts, { ordered: false });
-    productsCreated = created.length;
   }
 
   return NextResponse.json({
@@ -135,7 +144,9 @@ export async function POST() {
     categoriesUpdated,
     legacyCategoriesMerged,
     productsCreated,
+    unusedDraftsRemoved,
     totalStarterCategories: starterCategories.length,
-    message: `Catalog prepared: 20 categories and up to 200 unpublished product drafts. Add each real product's photo, price, colors, description and stock, then make it visible.`
+    productPlan: { appleServices: 20, otherCategories: 3, total: 77 },
+    message: "Catalog prepared: 20 sections, 20 Apple Services drafts and 3 drafts in each remaining section. Drafts stay hidden until the administrator completes and publishes them."
   });
 }
