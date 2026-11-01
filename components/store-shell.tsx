@@ -67,6 +67,7 @@ export function StoreHeader() {
   useEffect(() => { setNotificationOpen(false); }, [pathname]);
   if (pathname.startsWith("/admin") || pathname === "/admin-login") return null;
   return (
+    <>
     <header className="site-header">
       <div className="header-inner">
         <Link href="/" className="brand"><span className="brand-mark">N</span><span>{storeName}<small>{t("marketplace")}</small></span></Link>
@@ -102,6 +103,7 @@ export function StoreHeader() {
       {mobileOpen && <div className="mobile-nav"><Link href="/" onClick={()=>setMobileOpen(false)}>{t("discover")}</Link><Link href="/#catalog" onClick={()=>setMobileOpen(false)}>{t("catalog")}</Link><Link href="/#deals" onClick={()=>setMobileOpen(false)}>{t("deals")}</Link>{user?.role !== "admin" && <Link href="/chat" onClick={()=>setMobileOpen(false)}><MessageCircle size={16}/> {t("support")}</Link>}<Link href={user?.role === "admin" ? "/admin" : user ? "/account" : "/login"} onClick={()=>setMobileOpen(false)}>{user?.role === "admin" ? t("adminDashboard") : t("myAccount")}</Link><form onSubmit={submitSearch}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><button><Search size={16}/></button></form></div>}
     </header>
     {user?.role === "customer" && <CustomerSidebar user={user}/>}
+    </>
   );
 }
 
