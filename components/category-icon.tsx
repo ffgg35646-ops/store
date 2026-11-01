@@ -71,3 +71,20 @@ export function CategoryIcon({ name, size = 22, className }: { name?: string; si
   const Icon = iconMap[name || "boxes"] || Boxes;
   return <Icon size={size} className={className} strokeWidth={1.8} aria-hidden="true" />;
 }
+
+export function getCategoryIconName(category: { icon?: string; name?: string; slug?: string }) {
+  if (category.icon && category.icon !== "boxes") return category.icon;
+  const key = `${category.slug || ""} ${category.name || ""}`.toLowerCase();
+  if (/apple|iphone|ipad|mobile|phone/.test(key)) return "smartphone";
+  if (/netflix|stream|shahid|tv|movie|cinema/.test(key)) return "tv";
+  if (/game|playstation|xbox|steam/.test(key)) return "gamepad-2";
+  if (/software|office|windows|productivity|tool/.test(key)) return "code-2";
+  if (/gift|top.?up|card/.test(key)) return "gift";
+  if (/music|audio|spotify/.test(key)) return "music";
+  if (/ai|artificial|premium/.test(key)) return "sparkles";
+  if (/security|vpn|antivirus/.test(key)) return "shield-check";
+  if (/cloud|storage|drive/.test(key)) return "cloud";
+  if (/device|computer|laptop|monitor/.test(key)) return "monitor";
+  if (/home|appliance|kitchen/.test(key)) return "home";
+  return category.icon || "boxes";
+}
