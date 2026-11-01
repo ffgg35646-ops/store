@@ -6,6 +6,7 @@ import { Bell, Check, ChevronDown, CircleUserRound, Languages, LogOut, Menu, Mes
 import { usePathname, useRouter } from "next/navigation";
 import { useCart } from "@/components/cart-provider";
 import { useLanguage } from "@/components/language-provider";
+import { CustomerSidebar } from "@/components/customer-sidebar";
 
 export function StoreHeader() {
   const cart = useCart();
@@ -100,6 +101,7 @@ export function StoreHeader() {
       </div>
       {mobileOpen && <div className="mobile-nav"><Link href="/" onClick={()=>setMobileOpen(false)}>{t("discover")}</Link><Link href="/#catalog" onClick={()=>setMobileOpen(false)}>{t("catalog")}</Link><Link href="/#deals" onClick={()=>setMobileOpen(false)}>{t("deals")}</Link>{user?.role !== "admin" && <Link href="/chat" onClick={()=>setMobileOpen(false)}><MessageCircle size={16}/> {t("support")}</Link>}<Link href={user?.role === "admin" ? "/admin" : user ? "/account" : "/login"} onClick={()=>setMobileOpen(false)}>{user?.role === "admin" ? t("adminDashboard") : t("myAccount")}</Link><form onSubmit={submitSearch}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><button><Search size={16}/></button></form></div>}
     </header>
+    {user?.role === "customer" && <CustomerSidebar user={user}/>}
   );
 }
 
