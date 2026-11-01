@@ -75,85 +75,8 @@ export async function POST() {
 
     // Remove only untouched, unused placeholder drafts created by the older 10x10 seed.
     // Products used in orders or customized by the admin are kept.
-    const escapedLegacyName = legacyName.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\    if (!legacy || !target || String(legacy._id) === String(target._id)) continue;
-
-    await Product.updateMany({ categoryId: legacy._id }, { $set: { categoryId: target._id } });");
     const legacyDrafts = await Product.find({
       categoryId: legacy._id,
-      title: new RegExp(`^${escapedLegacyName} — Draft product [0-9]{2}import { NextResponse } from "next/server";
-import { dbConnect } from "@/lib/db";
-import { Category, Coupon, Order, Product } from "@/lib/models";
-import { getCurrentUser } from "@/lib/auth";
-import { slugify } from "@/lib/store";
-
-const starterCategories = [
-  ["Streaming & TV", "Movies, series, live TV and streaming memberships."],
-  ["Netflix Accounts", "Netflix memberships and account plans."],
-  ["Shahid & Arabic Streaming", "Shahid and other Arabic entertainment subscriptions."],
-  ["Music & Audio", "Spotify, Apple Music and premium audio services."],
-  ["Gaming & Gift Cards", "Gaming accounts, subscriptions, top-ups and gift cards."],
-  ["PlayStation & Xbox", "Console memberships, online services and digital access."],
-  ["Apple Services", "Apple IDs, iCloud accounts, Apple Music and Apple services."],
-  ["Software & AI", "Software licenses, AI tools and digital productivity services."],
-  ["Microsoft & Office", "Microsoft 365, Windows and Office products."],
-  ["Adobe & Creative Software", "Creative Cloud, photo, video and design software."],
-  ["VPN & Security", "VPN, privacy, antivirus and online security subscriptions."],
-  ["Cloud Storage", "Cloud storage, backup and file-sharing services."],
-  ["Productivity", "Work, learning and productivity memberships."],
-  ["Design & Creative", "Design resources, creative tools and digital assets."],
-  ["Social Media & Creator Tools", "Social media accounts, creator services and digital audience tools."],
-  ["iPhone", "New and pre-owned iPhone devices and accessories."],
-  ["iPad & Tablets", "iPad devices, tablets and related accessories."],
-  ["MacBook & Laptops", "MacBook, Windows laptops and computing devices."],
-  ["Smartwatches & Wearables", "Apple Watch, smart bands and wearable devices."],
-  ["Home Appliances & Electronics", "Home appliances, headphones, screens, chargers and electronics."]
-] as const;
-
-const legacyCategoryAliases = [
-  ["Streaming Accounts", "Streaming & TV"],
-  ["Gaming Accounts", "Gaming & Gift Cards"],
-  ["Social Media Accounts", "Social Media & Creator Tools"],
-  ["AI Tools & Accounts", "Software & AI"],
-  ["Software & Utilities", "Software & AI"],
-  ["Productivity Tools", "Productivity"],
-  ["Gift Cards & Top-ups", "Gaming & Gift Cards"]
-] as const;
-
-const draftDescription = "Unpublished catalog draft. Add the real product name, images, price, colors, delivery instructions and available stock before making it visible.";
-
-export async function POST() {
-  const admin = await getCurrentUser();
-  if (admin?.role !== "admin") return NextResponse.json({ error: "Admin access required." }, { status: 403 });
-  await dbConnect();
-
-  let categoriesCreated = 0;
-  let categoriesUpdated = 0;
-  let legacyCategoriesMerged = 0;
-  let productsCreated = 0;
-  let unusedDraftsRemoved = 0;
-  const categoryByName = new Map<string, any>();
-
-  for (let index = 0; index < starterCategories.length; index++) {
-    const [name, description] = starterCategories[index];
-    const slug = slugify(name);
-    let category = await Category.findOne({ slug });
-    if (!category) {
-      category = await Category.create({ name, slug, description, sortOrder: index + 1, isActive: true });
-      categoriesCreated++;
-    } else {
-      let changed = false;
-      if (!category.description) { category.description = description; changed = true; }
-      if (Number(category.sortOrder) !== index + 1) { category.sortOrder = index + 1; changed = true; }
-      if (changed) { await category.save(); categoriesUpdated++; }
-    }
-    categoryByName.set(name, category);
-  }
-
-  // Move any earlier starter-catalog products into the matching new category.
-  for (const [legacyName, targetName] of legacyCategoryAliases) {
-    const legacy = await Category.findOne({ name: legacyName });
-    const target = categoryByName.get(targetName);
-),
       isActive: false,
       price: 0,
       image: "",
@@ -167,9 +90,15 @@ export async function POST() {
           description: draftDescription
         }
       ]
-    }).select("_id").lean();
-    if (legacyDrafts.length) {
-      const legacyDraftIds = legacyDrafts.map((item: any) => item._id);
+    }).select("_id title").lean();
+    const legacyPrefix = legacyName + " — Draft product ";
+    const untouchedLegacyDrafts = legacyDrafts.filter((item: any) => {
+      const title = String(item.title || "");
+      const suffix = title.slice(legacyPrefix.length);
+      return title.startsWith(legacyPrefix) && suffix.length === 2 && [...suffix].every((char) => char >= "0" && char <= "9");
+    });
+    if (untouchedLegacyDrafts.length) {
+      const legacyDraftIds = untouchedLegacyDrafts.map((item: any) => item._id);
       const usedIds = new Set((await Order.distinct("items.productId", { "items.productId": { $in: legacyDraftIds } })).map((id: any) => String(id)));
       const removableIds = legacyDraftIds.filter((id: any) => !usedIds.has(String(id)));
       if (removableIds.length) {
