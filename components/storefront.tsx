@@ -99,6 +99,7 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
 
 
 function CategoryProductRail({ category, products }: { category: any; products: any[] }) {
+  const { language } = useLanguage();
   const trackRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -125,11 +126,11 @@ function CategoryProductRail({ category, products }: { category: any; products: 
       <div className="category-stream-heading">
         <div className="category-stream-title">
           <span className="category-stream-mark"><Boxes size={19}/></span>
-          <div><h3>{category.name}</h3><small>{products.length} منتج</small></div>
+          <div><h3>{category.name}</h3><small>{products.length} {language === "ar" ? "منتج" : "products"}</small></div>
         </div>
         <div className="category-stream-actions">
           {pageCount > 1 && <div className="category-rail-dots" aria-label="Product pages">{Array.from({length:pageCount},(_,i)=><button type="button" key={i} className={i===page?"active":""} onClick={()=>goTo(i)} aria-label={`Page ${i+1}`}/>)}</div>}
-          <button type="button" className="category-more-button" onClick={()=>setExpanded(value=>!value)}>{expanded ? "عرض أقل" : "عرض المزيد"} <ArrowUpRight size={14}/></button>
+          <button type="button" className="category-more-button" onClick={()=>setExpanded(value=>!value)}>{expanded ? (language === "ar" ? "عرض أقل" : "Show less") : (language === "ar" ? "عرض المزيد" : "View more")} <ArrowUpRight size={14}/></button>
         </div>
       </div>
       {expanded ? <div className="category-expanded-grid">{products.map(product=><ProductCard key={product._id} product={product}/>)}</div> :
