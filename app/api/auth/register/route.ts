@@ -54,17 +54,20 @@ function diagnoseSmtpError(error: unknown, stage: "verify" | "send"): SmtpDiagno
     command?: string;
     response?: string;
     responseCode?: number;
+    originalCode?: string;
     message?: string;
   };
   const code = String(err.code || "").toUpperCase();
+  const originalCode = String(err.originalCode || "").toUpperCase();
   const command = String(err.command || "").toUpperCase();
-  const details = [err.message, err.response, err.command, err.responseCode]
+  const details = [err.message, err.response, err.command, err.responseCode, originalCode]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
 
   if (
     code === "EAUTH" ||
+    code === "ENOAUTH" ||
     /\b535\b|\b534\b|5\.7\.8|invalid login|authentication failed|username and password not accepted|application-specific password/i.test(details)
   ) {
     return { errorCode: "smtpAuthFailed", status: 502 };
@@ -87,12 +90,21 @@ function diagnoseSmtpError(error: unknown, stage: "verify" | "send"): SmtpDiagno
     return { errorCode: "smtpRecipientRejected", status: 422 };
   }
 
-  if (/tls|ssl|certificate|handshake|wrong version number/i.test(details) || code.includes("TLS")) {
+  if (
+    code === "EDNS" ||
+    ["ENOTFOUND", "EAI_AGAIN", "EREFUSED", "ESERVFAIL"].includes(originalCode) ||
+    /getaddrinfo|query[aa]?\s|dns lookup|name or service not known/i.test(details)
+  ) {
+    return { errorCode: "smtpDnsFailed", status: 502 };
+  }
+
+  if (/tls|ssl|certificate|handshake|wrong version number/i.test(details) || code.includes("TLS") || code === "ETLS") {
     return { errorCode: "smtpTlsFailed", status: 502 };
   }
 
   if (
-    ["ENOTFOUND", "ECONNECTION", "ECONNREFUSED", "ETIMEDOUT", "ESOCKET", "EHOSTUNREACH", "EAI_AGAIN"].includes(code) ||
+    ["ECONNECTION", "ECONNREFUSED", "ETIMEDOUT", "ESOCKET", "EHOSTUNREACH"].includes(code) ||
+    ["ECONNREFUSED", "ETIMEDOUT", "EHOSTUNREACH", "ENETUNREACH"].includes(originalCode) ||
     /connection timeout|connect econn|getaddrinfo|socket hang up|connection refused/i.test(details)
   ) {
     return { errorCode: "smtpConnectionFailed", status: 502 };
@@ -156,6 +168,7 @@ export async function POST(request: NextRequest) {
         const diagnostic = diagnoseSmtpError(mailError, "verify");
         console.error("SMTP verification check failed", {
           code: (mailError as any)?.code,
+          originalCode: (mailError as any)?.originalCode,
           command: (mailError as any)?.command,
           responseCode: (mailError as any)?.responseCode,
           diagnostic: diagnostic.errorCode,
