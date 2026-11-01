@@ -6,6 +6,7 @@ import { dbConnect } from "@/lib/db";
 import { User } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { notify } from "@/lib/store";
+import { buildVerificationEmail } from "@/lib/verification-email";
 
 type SmtpDiagnostic = {
   errorCode: string;
@@ -204,17 +205,16 @@ export async function POST(request: NextRequest) {
       password: await bcrypt.hash(password, 12),
       emailVerified: false,
       emailVerificationTokenHash: createHash("sha256").update(verificationToken).digest("hex"),
-      emailVerificationExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      emailVerificationExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
     });
 
     if (transport && smtp.ok) {
       try {
+        const emailContent = buildVerificationEmail(name, verifyUrl);
         const info = await transport.sendMail({
           from: smtp.from,
           to: user.email,
-          subject: "Verify your Nova Digital email",
-          text: `Welcome to Nova Digital. Verify your email within 24 hours: ${verifyUrl}`,
-          html: `<p>Welcome to Nova Digital, ${name.replace(/[<>]/g, "")}.</p><p>Verify your email address to activate your account.</p><p><a href="${verifyUrl}">Verify my email</a></p><p>This link expires in 24 hours.</p>`,
+          ...emailContent,
         });
 
         if (info.rejected?.length || !info.accepted?.length) {
