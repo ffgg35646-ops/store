@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       const legacyTargets = (campaign.targetIds || []).map((id: any) => String(id));
       const legacyProduct = campaign.targetType === "products" && !productTargets.length && !categoryTargets.length;
       const legacyCategory = campaign.targetType === "categories" && !productTargets.length && !categoryTargets.length;
-      const restricted = campaign.targetAllProducts === false || (campaign.targetAllProducts == null && (legacyProduct || legacyCategory));
+      const restricted = campaign.targetAllProducts === false || legacyProduct || legacyCategory;
       const matches = !restricted
         || productTargets.includes(String(p._id))
         || categoryTargets.includes(String(p.categoryId?._id || p.categoryId))
