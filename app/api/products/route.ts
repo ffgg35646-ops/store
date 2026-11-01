@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   const now = new Date();
   const campaigns = await Coupon.find({ active: true, autoApply: true, discountType: "percentage" }).lean();
   const customerId = String(user?._id || "");
-  const eligibleCampaigns = (campaigns as any[]).filter((campaign) => {
+  const matchingCampaigns = (campaigns as any[]).filter((campaign) => {
     if ((campaign.startsAt && campaign.startsAt > now) || (campaign.endsAt && campaign.endsAt < now)) return false;
     if (campaign.usageLimit > 0 && campaign.usedCount >= campaign.usageLimit) return false;
     const selectedUsers = (campaign.targetUserIds || []).map((id: any) => String(id));
@@ -30,6 +30,13 @@ export async function GET(request: NextRequest) {
     const allowedUsers = selectedUsers.length ? selectedUsers : legacyUsers;
     return !allowedUsers.length || allowedUsers.includes(customerId);
   });
+  // Only preview a promotion on individual product cards when it has no order-wide
+  // limits and there is exactly one eligible campaign; checkout can choose among many.
+  const eligibleCampaigns = matchingCampaigns.length === 1 &&
+    Number(matchingCampaigns[0].minOrder || 0) === 0 &&
+    Number(matchingCampaigns[0].maxDiscount || 0) === 0
+    ? matchingCampaigns
+    : [];
   const ids = products.map((p: any) => p._id);
   const stockRows = await InventoryItem.aggregate([{ $match: { productId: { $in: ids }, status: "available" } }, { $group: { _id: "$productId", count: { $sum: 1 } } }]);
   const stockMap = new Map(stockRows.map((r: any) => [String(r._id), r.count]));
