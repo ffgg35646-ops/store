@@ -31,6 +31,7 @@ export function StoreHeader() {
   }, [pathname]);
   async function logout() { await fetch("/api/auth/logout", { method: "POST" }); setUser(null); router.push("/"); router.refresh(); }
   function submitSearch(e: React.FormEvent) { e.preventDefault(); router.push(`/?q=${encodeURIComponent(search)}#catalog`); setMobileOpen(false); }
+  if (pathname.startsWith("/admin") || pathname === "/admin-login") return null;
   return (
     <header className="site-header">
       <div className="header-inner">
@@ -56,6 +57,8 @@ export function StoreHeader() {
 
 export function StoreFooter() {
   const { t } = useLanguage();
+  const pathname = usePathname();
+  if (pathname.startsWith("/admin") || pathname === "/admin-login") return null;
   return <footer className="site-footer"><div className="footer-inner"><div className="brand footer-brand"><span className="brand-mark">N</span><span>NOVA<span className="brand-light"> DIGITAL</span><small>{t("marketplace")}</small></span></div><p>{t("footerDescription")}</p><div className="footer-links"><Link href="/#catalog">{t("exploreCatalog")}</Link><Link href="/about">{t("aboutUs")}</Link><Link href="/privacy">{t("privacyPolicy")}</Link><Link href="/terms">{t("terms")}</Link><Link href="/contact">{t("contact")}</Link><Link href="/chat">{t("customerSupport")}</Link><Link href="/account">{t("myAccount")}</Link></div><span className="copyright">© {new Date().getFullYear()} Nova Digital. All rights reserved.</span></div></footer>;
 }
 
