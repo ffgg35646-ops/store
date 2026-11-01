@@ -451,3 +451,15 @@ html[dir=rtl] .hero-image-dots{left:auto;right:20px}
 .auth-required-actions .button{min-height:43px}
 html[dir=rtl] .auth-required-close{right:auto;left:13px}
 @media(max-width:480px){.auth-required-modal{padding:27px 19px 21px;border-radius:16px}.auth-required-modal h2{font-size:19px}.auth-required-modal p{font-size:11px}}
+
+
+/* Product detail reading comfort */
+.product-detail-info h1{font-size:clamp(27px,3vw,36px);line-height:1.35;letter-spacing:0;font-weight:800;margin:12px 0 10px}
+.product-long-desc{font-size:15px;line-height:2;color:#626b79;margin:0 0 16px}
+.product-description{margin-top:24px;padding:18px 20px;background:#fafaff;border:1px solid var(--line);border-radius:14px}
+.product-description h3{font-size:16px;font-weight:800;line-height:1.6;margin:0 0 10px;color:#29263d}
+.product-description p{font-size:14px;line-height:2.05;color:#626b79;margin:0;white-space:pre-wrap}
+html[dir=rtl] .product-detail-info{text-align:right}
+html[dir=rtl] .product-detail-info .detail-delivery span{justify-content:flex-start}
+html[dir=rtl] .product-detail-info .buy-row{direction:rtl}
+@media(max-width:700px){.product-detail-layout{gap:22px}.product-detail-visual{height:300px}.product-detail-info h1{font-size:27px}.product-long-desc{font-size:14px}.product-description{padding:15px}.product-description h3{font-size:15px}.product-description p{font-size:13px;line-height:2}}
