@@ -17,12 +17,21 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   if (!category) return NextResponse.json({ error: "Category not found." }, { status: 404 });
   return NextResponse.json({ category });
 }
+
 export async function DELETE(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (user?.role !== "admin") return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   await dbConnect();
   const { id } = await context.params;
-  if (await Product.exists({ categoryId: id })) return NextResponse.json({ error: "Move or delete this category's products first." }, { status: 409 });
+  const category = await Category.findById(id);
+  if (!category) return NextResponse.json({ error: "Category not found." }, { status: 404 });
+
+  // Retain products for order-history snapshots but remove them from the public catalog.
+  const archived = await Product.updateMany({ categoryId: id }, { $set: { isActive: false } });
   await Category.findByIdAndDelete(id);
-  return NextResponse.json({ success: true });
+  return NextResponse.json({
+    success: true,
+    archivedProducts: archived.modifiedCount || 0,
+    message: "Category deleted. Its products have been hidden from the storefront and preserved for order history."
+  });
 }

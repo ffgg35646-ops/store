@@ -32,6 +32,35 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     await notify({ userId: order.userId, title: "Payment approved", body: `Your payment for ${order.orderNumber} has been approved.`, type: "payment", href: `/orders/${order._id}` });
     return NextResponse.json({ order: result });
   }
+  if (body.action === "ship") {
+    if (order.paymentStatus !== "paid") return NextResponse.json({ error: "Payment must be confirmed before shipping." }, { status: 400 });
+    if (!["processing", "delivered"].includes(order.status)) return NextResponse.json({ error: "Only new paid orders can be moved to shipping." }, { status: 409 });
+    order.status = "shipped";
+    order.shippedAt = new Date();
+    await order.save();
+    await notify({
+      userId: order.userId,
+      title: "Your order has been shipped",
+      body: `Order ${order.orderNumber} has been confirmed as shipped. You can follow its status from your account.`,
+      type: "delivery",
+      href: `/orders/${order._id}`
+    });
+    return NextResponse.json({ order });
+  }
+  if (body.action === "complete") {
+    if (order.status !== "shipped") return NextResponse.json({ error: "Only shipped orders can be completed." }, { status: 409 });
+    order.status = "completed";
+    order.completedAt = new Date();
+    await order.save();
+    await notify({
+      userId: order.userId,
+      title: "Your order is complete",
+      body: `Order ${order.orderNumber} has been marked as completed. Thank you for your purchase.`,
+      type: "delivery",
+      href: `/orders/${order._id}`
+    });
+    return NextResponse.json({ order });
+  }
   if (body.action === "retry-delivery") {
     if (order.paymentStatus !== "paid") return NextResponse.json({ error: "Payment must be confirmed before delivery." }, { status: 400 });
     const result = await fulfillOrder(String(order._id));

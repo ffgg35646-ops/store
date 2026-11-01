@@ -81,7 +81,9 @@ const OrderSchema = new Schema({
   couponCode: { type: String, default: "" },
   paymentMethod: { type: String, enum: ["wallet", "stripe", "manual"], required: true },
   paymentStatus: { type: String, enum: ["pending", "paid", "failed", "refunded"], default: "pending" },
-  status: { type: String, enum: ["awaiting_payment", "processing", "delivered", "completed", "cancelled", "refunded"], default: "awaiting_payment" },
+  status: { type: String, enum: ["awaiting_payment", "processing", "delivered", "shipped", "completed", "cancelled", "refunded"], default: "awaiting_payment" },
+  shippedAt: Date,
+  completedAt: Date,
   paymentReference: { type: String, default: "" },
   stripeSessionId: { type: String, default: "" },
   adminNote: { type: String, default: "" },
@@ -102,6 +104,11 @@ const CouponSchema = new Schema({
   usedCount: { type: Number, default: 0 },
   targetType: { type: String, enum: ["all", "users", "products", "categories"], default: "all" },
   targetIds: [{ type: ObjectId }],
+  targetAllProducts: { type: Boolean, default: true },
+  targetUserIds: [{ type: ObjectId, ref: "User" }],
+  targetProductIds: [{ type: ObjectId, ref: "Product" }],
+  targetCategoryIds: [{ type: ObjectId, ref: "Category" }],
+  autoApply: { type: Boolean, default: false },
   active: { type: Boolean, default: true }
 }, { timestamps: true });
 
