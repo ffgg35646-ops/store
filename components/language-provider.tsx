@@ -20,13 +20,13 @@ const LanguageContext = createContext<{language:Language; setLanguage:(value:Lan
 export function LanguageProvider({children}:{children:React.ReactNode}) {
   const [language,setLanguageState] = useState<Language>("ar");
   useEffect(()=>{
-    try { const saved=localStorage.getItem("nova-language"); if(saved==="ar"||saved==="en") setLanguageState(saved); else setLanguageState("ar"); } catch {}
+    try { const saved=localStorage.getItem("nova-language-v2"); if(saved==="ar"||saved==="en") setLanguageState(saved); else setLanguageState("ar"); } catch {}
   },[]);
   useEffect(()=>{
     document.documentElement.lang=language;
     document.documentElement.dir=language==="ar"?"rtl":"ltr";
     document.documentElement.dataset.language=language;
-    try { localStorage.setItem("nova-language",language); } catch {}
+    try { localStorage.setItem("nova-language-v2",language); } catch {}
   },[language]);
   const setLanguage=useCallback((value:Language)=>setLanguageState(value),[]);
   const t=useCallback((key:string)=>dictionaries[language][key]||dictionaries.en[key]||key,[language]);
