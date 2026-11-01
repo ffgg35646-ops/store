@@ -28,7 +28,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       const data = await response.json();
       if (!response.ok) { const code = String(data.errorCode || ""); if (code.startsWith("smtp") && typeof t(code) === "string" && t(code) !== code) { let message = t(code); if (code === "smtpConfigMissing" && Array.isArray(data.missing)) message = message.replace("{settings}", data.missing.join(", ")); if (code === "smtpDnsFailed") { message = message.replace("{host}", String(data.smtpHost || "SMTP_HOST")).replace("{port}", String(data.smtpPort || "—")).replace("{dnsCode}", data.smtpDnsCode ? ` (${String(data.smtpDnsCode)})` : ""); } throw new Error(message); } throw new Error(data.error || "Something went wrong."); }
       if (mode === "register" && data.verificationRequired) { setVerificationSent(true); return; }
-      const next = safeNext || "/account";
+      const next = safeNext || "/";
       router.replace(next); router.refresh();
     } catch(err:any) { setError(err.message); } finally { setBusy(false); }
   }
