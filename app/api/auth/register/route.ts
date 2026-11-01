@@ -42,7 +42,7 @@ function getSmtpConfiguration():
 
   const fromAddress = (from.match(/<([^<>]+)>/)?.[1] || from).trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromAddress)) {
-    return { ok: false, errorCode: "smtpSenderRejected", status: 503 };
+    return { ok: false, errorCode: "smtpSenderInvalid", status: 503 };
   }
 
   return { ok: true, host, port, secure: rawSecure === "true", user, password, from };
@@ -102,6 +102,7 @@ function diagnoseSmtpError(error: unknown, stage: "verify" | "send"): SmtpDiagno
 }
 
 export async function POST(request: NextRequest) {
+  let activeTransport: ReturnType<typeof nodemailer.createTransport> | null = null;
   try {
     await dbConnect();
     if (await getCurrentUser()) {
@@ -147,6 +148,7 @@ export async function POST(request: NextRequest) {
         socketTimeout: 15000,
         tls: { minVersion: "TLSv1.2" },
       });
+      activeTransport = transport;
 
       try {
         await transport.verify();
@@ -159,6 +161,7 @@ export async function POST(request: NextRequest) {
           diagnostic: diagnostic.errorCode,
         });
         transport.close();
+        activeTransport = null;
         return NextResponse.json({ errorCode: diagnostic.errorCode }, { status: diagnostic.status });
       }
     }
@@ -206,6 +209,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ errorCode: diagnostic.errorCode }, { status: diagnostic.status });
       } finally {
         transport.close();
+        activeTransport = null;
       }
     } else {
       console.info("Development email verification URL:", verifyUrl);
@@ -228,6 +232,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    activeTransport?.close();
     console.error("register", error);
     return NextResponse.json({ error: "Unable to create your account." }, { status: 500 });
   }
