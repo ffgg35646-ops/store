@@ -1,2 +1,4 @@
-import { redirect } from "next/navigation";
-export default function OrdersPage(){redirect("/account?tab=orders");}
+import { OrdersClient } from "@/components/orders-client";
+export default function OrdersPage() {
+  return <OrdersClient />;
+}

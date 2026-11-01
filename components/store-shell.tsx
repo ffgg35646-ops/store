@@ -100,7 +100,7 @@ export function StoreHeader() {
             </div>}
           </div>}
           {user?.role !== "admin" && <Link href="/cart" className="header-icon cart-icon" aria-label={t("cart")}><ShoppingBag size={19}/>{cart.count > 0 && <i className="cart-count">{cart.count}</i>}</Link>}
-          {user ? <div className="user-menu"><Link href={user.role === "admin" ? "/admin" : "/account"} className="account-link"><CircleUserRound size={18}/><span>{user.name?.split(" ")[0]}</span><ChevronDown size={14}/></Link><div className="user-dropdown">{user.role === "admin" ? <Link href="/admin">{t("adminDashboard")}</Link> : <><Link href="/account">{t("myAccount")}</Link><Link href="/orders">{t("myOrders")}</Link><Link href="/chat">{t("supportChat")}</Link></>}<button onClick={logout}><LogOut size={15}/> {t("signOut")}</button></div></div> : <Link href="/login" className="button button-small">{t("signIn")}</Link>}
+          {user ? <div className="user-menu"><Link href={user.role === "admin" ? "/admin" : "/profile"} className="account-link"><CircleUserRound size={18}/><span>{user.name?.split(" ")[0]}</span><ChevronDown size={14}/></Link><div className="user-dropdown">{user.role === "admin" ? <Link href="/admin">{t("adminDashboard")}</Link> : <><Link href="/profile">{t("myAccount")}</Link><Link href="/orders">{t("myOrders")}</Link><Link href="/chat">{t("supportChat")}</Link></>}<button onClick={logout}><LogOut size={15}/> {t("signOut")}</button></div></div> : <Link href="/login" className="button button-small">{t("signIn")}</Link>}
           {!isCustomer && <button className="mobile-toggle" onClick={()=>setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">{mobileOpen ? <X/> : <Menu/>}</button>}
         </div>
       </div>
@@ -115,7 +115,7 @@ export function StoreFooter() {
   const { t } = useLanguage();
   const pathname = usePathname();
   if (pathname.startsWith("/admin") || pathname === "/admin-login") return null;
-  return <footer className="site-footer"><div className="footer-inner"><div className="brand footer-brand"><span className="brand-mark">N</span><span>NOVA<span className="brand-light"> DIGITAL</span><small>{t("marketplace")}</small></span></div><p>{t("footerDescription")}</p><div className="footer-links"><Link href="/#catalog">{t("exploreCatalog")}</Link><Link href="/about">{t("aboutUs")}</Link><Link href="/privacy">{t("privacyPolicy")}</Link><Link href="/terms">{t("terms")}</Link><Link href="/contact">{t("contact")}</Link><Link href="/chat">{t("customerSupport")}</Link><Link href="/account">{t("myAccount")}</Link></div><span className="copyright">© {new Date().getFullYear()} Nova Digital. All rights reserved.</span></div></footer>;
+  return <footer className="site-footer"><div className="footer-inner"><div className="brand footer-brand"><span className="brand-mark">N</span><span>NOVA<span className="brand-light"> DIGITAL</span><small>{t("marketplace")}</small></span></div><p>{t("footerDescription")}</p><div className="footer-links"><Link href="/#catalog">{t("exploreCatalog")}</Link><Link href="/about">{t("aboutUs")}</Link><Link href="/privacy">{t("privacyPolicy")}</Link><Link href="/terms">{t("terms")}</Link><Link href="/contact">{t("contact")}</Link><Link href="/chat">{t("customerSupport")}</Link><Link href="/profile">{t("myAccount")}</Link></div><span className="copyright">© {new Date().getFullYear()} Nova Digital. All rights reserved.</span></div></footer>;
 }
 
 export function PageIntro({ eyebrow, title, description }: { eyebrow?: string; title: string; description?: string }) {

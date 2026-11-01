@@ -2,17 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, CircleUserRound, ClipboardList, Wallet, Bell, ShoppingBag, MessageCircle, UserRound, LogOut, X, Menu } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { BookOpen, ClipboardList, ShoppingBag, MessageCircle, UserRound, LogOut, X, Menu } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
 
 const items = [
-  { href: "/", key: "catalog", icon: BookOpen, exact: true },
-  { href: "/account", key: "myAccount", icon: CircleUserRound, exact: true },
-  { href: "/account?tab=profile", key: "profile", icon: UserRound },
-  { href: "/account?tab=orders", key: "myOrders", icon: ClipboardList },
-  { href: "/account?tab=wallet", key: "walletTab", icon: Wallet },
-  { href: "/account?tab=notifications", key: "notifications", icon: Bell },
+  { href: "/", key: "catalog", icon: BookOpen },
+  { href: "/profile", key: "profile", icon: UserRound },
+  { href: "/orders", key: "myOrders", icon: ClipboardList },
   { href: "/cart", key: "cart", icon: ShoppingBag },
   { href: "/chat", key: "supportChat", icon: MessageCircle }
 ];
@@ -20,28 +17,29 @@ const items = [
 export function CustomerSidebar({ user }: { user: any }) {
   const { language } = useLanguage();
   const pathname = usePathname();
-  const params = useSearchParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   if (!user || user.role !== "customer") return null;
+
   const labels: Record<string, [string, string]> = {
-    catalog: ["الكتالوج", "Catalog"], myAccount: ["نظرة عامة", "Overview"],
-    profile: ["الملف الشخصي", "Profile"], myOrders: ["طلباتي", "My orders"],
-    walletTab: ["المحفظة", "Wallet"], notifications: ["الإشعارات", "Notifications"],
-    cart: ["سلة التسوق", "Shopping cart"], supportChat: ["الدعم الفني", "Support"]
+    catalog: ["الكتالوج", "Catalog"],
+    profile: ["الملف الشخصي", "Profile"],
+    myOrders: ["طلباتي", "My orders"],
+    cart: ["سلة التسوق", "Shopping cart"],
+    supportChat: ["الدعم الفني", "Support"]
   };
-  const active = (item: typeof items[number]) => {
-    if (item.href === "/") return pathname === "/";
-    if (item.href === "/account") return pathname === "/account" && !params.get("tab");
-    if (item.href.startsWith("/account?")) return pathname === "/account" && params.get("tab") === item.href.split("=")[1];
-    return pathname === item.href || pathname.startsWith(item.href + "/");
-  };
+
+  const active = (item: typeof items[number]) => item.href === "/"
+    ? pathname === "/"
+    : pathname === item.href || pathname.startsWith(item.href + "/");
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     localStorage.removeItem("nova-cart");
     router.replace("/");
     router.refresh();
   }
+
   const label = (key: string) => labels[key]?.[language === "ar" ? 0 : 1] || key;
   return <>
     <button className="customer-sidebar-mobile-trigger" onClick={() => setOpen(true)} aria-label={language === "ar" ? "فتح القائمة" : "Open menu"}><Menu size={19}/></button>
