@@ -7,12 +7,12 @@ import { ProductCard } from "@/components/product-card";
 import { useLanguage } from "@/components/language-provider";
 
 export function Storefront({ initialQuery = "", initialCategory = "" }: { initialQuery?: string; initialCategory?: string }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
-  const [loading, setLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [slideIndex,setSlideIndex] = useState(0);
   const [heroImageIndex,setHeroImageIndex] = useState(0);
@@ -37,14 +37,15 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
   useEffect(()=>{const timer=setInterval(()=>setHeroImageIndex(index=>(index+1)%heroImages.length),4500);return()=>clearInterval(timer);},[]);
   useEffect(() => {
     let active = true;
+    try { const cachedProducts = JSON.parse(sessionStorage.getItem(`nova-products-cache-${language}`) || "[]"); const cachedCategories = JSON.parse(sessionStorage.getItem(`nova-categories-cache-${language}`) || "[]"); if (cachedProducts.length) { setProducts(cachedProducts); setHasLoaded(true); } if (cachedCategories.length) setCategories(cachedCategories); } catch {}
     Promise.all([
-      fetch("/api/products").then(r=>r.json()),
-      fetch("/api/categories").then(r=>r.json()),
+      fetch(`/api/products?lang=${language}`).then(r=>r.json()),
+      fetch(`/api/categories?lang=${language}`).then(r=>r.json()),
       fetch("/api/admin/settings").then(r=>r.json())
-    ]).then(([p,c,s]) => { if (active) { setProducts(p.products || []); setCategories(c.categories || []); setAnnouncement(s.settings?.announcement || ""); } })
-      .catch(()=>{}).finally(()=>{ if(active) setLoading(false); });
+    ]).then(([p,c,s]) => { if (active) { setProducts(p.products || []); setCategories(c.categories || []); setHasLoaded(true); try { sessionStorage.setItem(`nova-products-cache-${language}`, JSON.stringify(p.products || [])); sessionStorage.setItem(`nova-categories-cache-${language}`, JSON.stringify(c.categories || [])); } catch {} setAnnouncement(s.settings?.announcement || ""); } })
+      .catch(()=>{});
     return ()=>{active=false;};
-  }, []);
+  }, [language]);
   const visible = products.filter(p => (!query || (p.title + " " + p.shortDescription).toLowerCase().includes(query.toLowerCase())) && (!category || String(p.categoryId?._id || p.categoryId) === category));
   const featured = visible.filter(p=>p.isFeatured);
   const top = featured.length ? featured : visible.slice(0,4);
@@ -70,10 +71,10 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
           {categoryCounts.length ? <div className="category-grid">{categoryCounts.map((c:any)=><Link href={`/?category=${c._id}#catalog`} key={c._id} className="category-card">{c.image ? <img src={c.image} alt=""/> : <div className="category-placeholder"><Boxes size={24}/></div>}<div><b>{c.name}</b><small>{c.count} {t("products")}</small></div><ArrowUpRight size={17}/></Link>)}</div> : <div className="empty-state compact"><Boxes/><b>{t("categoriesComing")}</b><span>{t("preparingCatalog")}</span></div>}
         </section>
         <section className="section-block" id="deals"><div className="section-heading"><div><span className="eyebrow">{t("handPicked")}</span><h2><Flame className="title-icon"/> {t("featuredPicks")}</h2></div><span className="heading-note">{t("popularChoices")}</span></div>
-          {loading ? <div className="loading-grid">{[1,2,3,4].map(i=><div className="skeleton-card" key={i}/>)}</div> : top.length ? <div className="product-grid">{top.slice(0,4).map(p=><ProductCard key={p._id} product={p}/>)}</div> : <div className="empty-state"><Sparkles/><b>{t("newDiscoveries")}</b><span>{t("firstFeatured")}</span></div>}
+          {top.length ? <div className="product-grid">{top.slice(0,4).map(p=><ProductCard key={p._id} product={p}/>)}</div> : hasLoaded ? <div className="empty-state"><Sparkles/><b>{t("newDiscoveries")}</b><span>{t("firstFeatured")}</span></div> : null}
         </section>
         <section className="catalog-section" id="catalog"><div className="section-heading"><div><span className="eyebrow">{t("fullCollection")}</span><h2>{t("browseCatalog")}</h2><p>{t("exploreEverything")}</p></div><div className="catalog-search"><input placeholder={t("filterCatalog")} value={query} onChange={e=>setQuery(e.target.value)}/></div></div>
-          {loading ? <div className="loading-grid">{[1,2,3,4].map(i=><div className="skeleton-card" key={i}/>)}</div> : visible.length ? <div className="product-grid">{visible.map(p=><ProductCard key={p._id} product={p}/>)}</div> : <div className="empty-state"><Boxes/><b>{t("noProducts")}</b><span>{t("tryAnotherSearch")}</span></div>}
+          {visible.length ? <div className="product-grid">{visible.map(p=><ProductCard key={p._id} product={p}/>)}</div> : hasLoaded ? <div className="empty-state"><Boxes/><b>{t("noProducts")}</b><span>{t("tryAnotherSearch")}</span></div> : null}
         </section>
         <section className="support-banner"><div className="support-symbol"><Headphones size={27}/></div><div><span className="eyebrow">{t("needHand")}</span><h2>{t("notSureFits")}</h2><p>{t("supportDescription")}</p></div><Link href="/chat" className="button button-primary">{t("chatSupport")} <ArrowRight size={16}/></Link></section>
       </main>

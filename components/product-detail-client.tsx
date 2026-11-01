@@ -9,14 +9,14 @@ import { PageIntro } from "@/components/store-shell";
 import { useLanguage } from "@/components/language-provider";
 
 export function ProductDetailClient({slug}:{slug:string}) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [product,setProduct]=useState<any>(null);
   const [quantity,setQuantity]=useState(1);
   const [selectedImage,setSelectedImage]=useState("");
   const [selectedColor,setSelectedColor]=useState("");
   const [loading,setLoading]=useState(true);
   const cart=useCart();
-  useEffect(()=>{fetch(`/api/products?slug=${encodeURIComponent(slug)}`).then(r=>r.json()).then(d=>{const item=d.products?.[0]||null;setProduct(item);setSelectedColor(item?.colors?.[0]?.name||"");}).finally(()=>setLoading(false));},[slug]);
+  useEffect(()=>{fetch(`/api/products?slug=${encodeURIComponent(slug)}&lang=${language}`).then(r=>r.json()).then(d=>{const item=d.products?.[0]||null;setProduct(item);setSelectedColor(item?.colors?.[0]?.name||"");}).finally(()=>setLoading(false));},[slug,language]);
   if(loading)return <main className="main-content narrow-page"><div className="loading-block"/></main>;
   if(!product)return <main className="main-content narrow-page"><div className="empty-state"><ShoppingCart/><b>{t("productNotFound")}</b><Link href="/#catalog" className="button button-primary">{t("backToCatalog")}</Link></div></main>;
   const basePrice=Number(product.basePrice??product.price);
