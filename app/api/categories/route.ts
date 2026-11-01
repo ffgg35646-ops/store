@@ -3,13 +3,15 @@ import { dbConnect } from "@/lib/db";
 import { Category } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { slugify } from "@/lib/store";
+import { arabicCategoryName } from "@/lib/product-localization";
 
 export async function GET(request: NextRequest) {
   await dbConnect();
   const user = await getCurrentUser();
   const includeInactive = request.nextUrl.searchParams.get("includeInactive") === "1" && user?.role === "admin";
   const categories = await Category.find(includeInactive ? {} : { isActive: true }).sort({ sortOrder: 1, name: 1 }).lean();
-  return NextResponse.json({ categories });
+  const language = request.nextUrl.searchParams.get("lang") || "en";
+  return NextResponse.json({ categories: language === "ar" ? categories.map((category: any) => ({ ...category, name: arabicCategoryName(category.slug, category.name) })) : categories });
 }
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
