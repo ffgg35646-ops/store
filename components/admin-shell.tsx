@@ -24,7 +24,7 @@ export function AdminShell({children}:{children:React.ReactNode}) {
   const [user,setUser]=useState<any>(null);
   const [open,setOpen]=useState(false);
   useEffect(()=>{fetch("/api/auth/me").then(r=>r.json()).then(d=>setUser(d.user));},[]);
-  async function logout(){await fetch("/api/auth/logout",{method:"POST"});router.push("/login");}
+  async function logout(){await fetch("/api/auth/logout",{method:"POST"});router.push("/admin-login");}
   return <div className="admin-layout">
     <aside className={open?"admin-sidebar open":"admin-sidebar"}><Link href="/admin" className="admin-brand"><span className="brand-mark">N</span><span>NOVA <small>CONTROL CENTER</small></span></Link>
       <div className="admin-nav-label">WORKSPACE</div><nav>{nav.map(item=>{const Icon=item.icon;return <Link key={item.href} href={item.href} onClick={()=>setOpen(false)} className={(item.href==="/admin"?pathname==="/admin":pathname.startsWith(item.href))?"active":""}><Icon size={17}/>{item.label}</Link>;})}</nav>
