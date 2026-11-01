@@ -102,6 +102,11 @@ const CouponSchema = new Schema({
   usedCount: { type: Number, default: 0 },
   targetType: { type: String, enum: ["all", "users", "products", "categories"], default: "all" },
   targetIds: [{ type: ObjectId }],
+  targetAllProducts: { type: Boolean, default: true },
+  targetUserIds: [{ type: ObjectId, ref: "User" }],
+  targetProductIds: [{ type: ObjectId, ref: "Product" }],
+  targetCategoryIds: [{ type: ObjectId, ref: "Category" }],
+  autoApply: { type: Boolean, default: false },
   active: { type: Boolean, default: true }
 }, { timestamps: true });
 
