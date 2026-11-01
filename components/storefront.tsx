@@ -12,7 +12,6 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
   const [categories, setCategories] = useState<any[]>([]);
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
-  const [loading, setLoading] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [slideIndex,setSlideIndex] = useState(0);
@@ -44,7 +43,7 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
       fetch(`/api/categories?lang=${language}`).then(r=>r.json()),
       fetch("/api/admin/settings").then(r=>r.json())
     ]).then(([p,c,s]) => { if (active) { setProducts(p.products || []); setCategories(c.categories || []); setHasLoaded(true); try { sessionStorage.setItem("nova-products-cache", JSON.stringify(p.products || [])); sessionStorage.setItem("nova-categories-cache", JSON.stringify(c.categories || [])); } catch {} setAnnouncement(s.settings?.announcement || ""); } })
-      .catch(()=>{}).finally(()=>{ if(active) setLoading(false); });
+      .catch(()=>{});
     return ()=>{active=false;};
   }, [language]);
   const visible = products.filter(p => (!query || (p.title + " " + p.shortDescription).toLowerCase().includes(query.toLowerCase())) && (!category || String(p.categoryId?._id || p.categoryId) === category));
