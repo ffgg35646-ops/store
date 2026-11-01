@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/db";
 import { User } from "@/lib/models";
-import { createSession, sessionCookieName } from "@/lib/auth";
+import { createSession, getCurrentUser, sessionCookieName } from "@/lib/auth";
 import { safeUser } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
+    if (await getCurrentUser()) return NextResponse.json({ error: "Sign out of your current account before switching to administrator access." }, { status: 409 });
     const body = await request.json();
     const email = String(body.email || "").trim().toLowerCase();
     const password = String(body.password || "");
