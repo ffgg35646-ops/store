@@ -51,6 +51,7 @@ function discountForSubtotal(coupon: any, eligibleSubtotal: number) {
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Sign in before checking out." }, { status: 401 });
+  if (user.role !== "customer") return NextResponse.json({ error: "Customer accounts only. Administrators cannot place customer orders." }, { status: 403 });
   try {
     await dbConnect();
     const body = await request.json();
