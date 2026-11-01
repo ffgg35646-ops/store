@@ -594,3 +594,54 @@ html[dir=rtl] .hero-image-dots{left:auto;right:20px}
  .admin-user-filters button{gap:3px;font-size:8px}
  .category-grid{grid-template-columns:1fr}
 }
+
+
+/* Storefront refinements */
+.site-header{box-shadow:0 5px 22px #211c3f08}
+.header-inner{max-width:1320px}
+.brand-mark{border-radius:13px}
+.header-icon,.account-link,.language-toggle{transition:background .18s,color .18s,border-color .18s}
+.language-toggle{border-radius:10px}
+.main-content{max-width:1280px;padding-top:54px}
+.section-block{margin-bottom:72px}
+.section-heading{margin-bottom:27px}
+.section-heading h2,.page-intro h1{letter-spacing:-.045em}
+.category-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:13px}
+.product-grid{gap:18px}
+.product-card{border-radius:18px}
+.product-image-wrap{height:178px}
+.product-card-body{padding:17px}
+.product-title{font-size:14px}
+.product-desc{font-size:11px;line-height:1.6;min-height:34px}
+.product-price{font-size:16px}
+.button{border-radius:12px}
+.cart-row,.checkout-panel,.summary-card,.data-card,.order-status-card{border-radius:17px}
+.auth-card{border-radius:22px;padding:38px;box-shadow:0 22px 65px #201c4812}
+.page-intro{margin-bottom:34px}
+.page-intro h1{font-size:34px}
+.page-intro p{font-size:13px;line-height:1.7}
+.support-banner{border-radius:21px;padding:34px}
+.site-footer{padding-top:50px;padding-bottom:46px}
+@media(max-width:1100px){
+ .category-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .product-image-wrap{height:160px}
+}
+@media(max-width:760px){
+ .main-content{padding:32px 15px 52px}
+ .section-block{margin-bottom:48px}
+ .section-heading{margin-bottom:18px}
+ .category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .product-grid{gap:10px}
+ .product-image-wrap{height:132px}
+ .product-card-body{padding:11px}
+ .product-desc{font-size:9px}
+ .support-banner{padding:21px;border-radius:15px;align-items:flex-start;flex-wrap:wrap}
+ .support-banner>div:nth-child(2){min-width:calc(100% - 78px)}
+ .support-banner .button{width:100%}
+ .auth-card{padding:27px 22px;border-radius:17px}
+ .page-intro{margin-bottom:24px}
+ .page-intro h1{font-size:27px}
+ .cart-row{padding:12px;gap:10px}
+ .cart-thumb{width:54px;height:54px}
+ .summary-card{position:static}
+}
