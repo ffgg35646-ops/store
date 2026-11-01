@@ -13,5 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" suppressHydrationWarning><body><LanguageProvider><CartProvider><StoreHeader/>{children}<StoreFooter/></CartProvider></LanguageProvider></body></html>;
+  return <html lang="ar" dir="rtl" suppressHydrationWarning><body><LanguageProvider><CartProvider><StoreHeader/>{children}<StoreFooter/></CartProvider></LanguageProvider></body></html>;
 }
