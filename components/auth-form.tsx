@@ -18,16 +18,18 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const [show,setShow] = useState(false);
   const [busy,setBusy] = useState(false);
   const [error,setError] = useState("");
+  const requestedNext = params.get("next") || "";
+  const safeNext = requestedNext.startsWith("/") && !requestedNext.startsWith("//") && !requestedNext.startsWith("/admin") ? requestedNext : "";
   async function submit(e:React.FormEvent) {
     e.preventDefault(); setBusy(true); setError("");
     if (mode === "register" && password !== confirmPassword) { setError("Passwords do not match."); setBusy(false); return; }
     try {
-      const response = await fetch(`/api/auth/${mode}`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name,email,password,confirmPassword}) });
+      const response = await fetch(`/api/auth/${mode}`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name,email,password,confirmPassword,next:safeNext}) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Something went wrong.");
       if (mode === "register" && data.verificationRequired) { setVerificationSent(true); return; }
-      const next = params.get("next") || (data.user?.role === "admin" ? "/admin" : "/account");
-      router.push(next); router.refresh();
+      const next = safeNext || "/account";
+      router.replace(next); router.refresh();
     } catch(err:any) { setError(err.message); } finally { setBusy(false); }
   }
   if (verificationSent) return <div className="auth-card verification-card"><div className="verification-icon"><CheckCircle2 size={30}/></div><span className="eyebrow">{t("emailVerificationTitle")}</span><h1>{t("emailVerificationTitle")}</h1><p>{t("emailVerificationDescription")}</p><div className="verification-email">{email}</div><button type="button" className="button button-outline button-wide" disabled={busy} onClick={async()=>{setBusy(true);setError("");try{const response=await fetch("/api/auth/resend-verification",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});const data=await response.json();if(!response.ok)throw new Error(data.error||t("verificationFailed"));setError(t("verificationSent"));}catch(err:any){setError(err.message||t("verificationFailed"));}finally{setBusy(false);}}}>{busy?t("pleaseWait"):t("resendVerification")}</button>{error&&<div className={error===t("verificationSent")?"form-success":"form-error"}>{error}</div>}<div className="auth-switch"><Link href="/login">{t("signIn")}</Link></div></div>;

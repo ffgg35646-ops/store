@@ -30,7 +30,7 @@ export function StoreHeader() {
     const timer = setInterval(load, 25000);
     return () => { active = false; clearInterval(timer); };
   }, [pathname]);
-  async function logout() { await fetch("/api/auth/logout", { method: "POST" }); setUser(null); router.push("/"); router.refresh(); }
+  async function logout() { await fetch("/api/auth/logout", { method: "POST" }); cart.clear(); localStorage.removeItem("nova-cart"); setUser(null); router.push("/"); router.refresh(); }
   function submitSearch(e: React.FormEvent) { e.preventDefault(); router.push(`/?q=${encodeURIComponent(search)}#catalog`); setMobileOpen(false); }
   if (pathname.startsWith("/admin") || pathname === "/admin-login") return null;
   return (
@@ -45,13 +45,13 @@ export function StoreHeader() {
         <form className="header-search" onSubmit={submitSearch}><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><kbd>↵</kbd></form>
         <div className="header-actions">
           <button type="button" className="language-toggle" onClick={()=>setLanguage(language==="en"?"ar":"en")} aria-label={t("language")} title={t("language")}><Languages size={17}/><span>{language==="en"?"العربية":"English"}</span></button>
-          <Link href="/account?tab=notifications" className="header-icon" aria-label={t("notifications")}><Bell size={19}/>{unread > 0 && <i className="notification-dot">{unread > 9 ? "9+" : unread}</i>}</Link>
-          <Link href="/cart" className="header-icon cart-icon" aria-label={t("cart")}><ShoppingBag size={19}/>{cart.count > 0 && <i className="cart-count">{cart.count}</i>}</Link>
-          {user ? <div className="user-menu"><Link href={user.role === "admin" ? "/admin" : "/account"} className="account-link"><CircleUserRound size={18}/><span>{user.name?.split(" ")[0]}</span><ChevronDown size={14}/></Link><div className="user-dropdown"><Link href="/account">{t("myAccount")}</Link><Link href="/orders">{t("myOrders")}</Link><Link href="/chat">{t("supportChat")}</Link>{user.role === "admin" && <Link href="/admin">{t("adminDashboard")}</Link>}<button onClick={logout}><LogOut size={15}/> {t("signOut")}</button></div></div> : <Link href="/login" className="button button-small">{t("signIn")}</Link>}
+          {user?.role !== "admin" && <Link href="/account?tab=notifications" className="header-icon" aria-label={t("notifications")}><Bell size={19}/>{unread > 0 && <i className="notification-dot">{unread > 9 ? "9+" : unread}</i>}</Link>}
+          {user?.role !== "admin" && <Link href="/cart" className="header-icon cart-icon" aria-label={t("cart")}><ShoppingBag size={19}/>{cart.count > 0 && <i className="cart-count">{cart.count}</i>}</Link>}
+          {user ? <div className="user-menu"><Link href={user.role === "admin" ? "/admin" : "/account"} className="account-link"><CircleUserRound size={18}/><span>{user.name?.split(" ")[0]}</span><ChevronDown size={14}/></Link><div className="user-dropdown">{user.role === "admin" ? <Link href="/admin">{t("adminDashboard")}</Link> : <><Link href="/account">{t("myAccount")}</Link><Link href="/orders">{t("myOrders")}</Link><Link href="/chat">{t("supportChat")}</Link></>}<button onClick={logout}><LogOut size={15}/> {t("signOut")}</button></div></div> : <Link href="/login" className="button button-small">{t("signIn")}</Link>}
           <button className="mobile-toggle" onClick={()=>setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">{mobileOpen ? <X/> : <Menu/>}</button>
         </div>
       </div>
-      {mobileOpen && <div className="mobile-nav"><Link href="/" onClick={()=>setMobileOpen(false)}>{t("discover")}</Link><Link href="/#catalog" onClick={()=>setMobileOpen(false)}>{t("catalog")}</Link><Link href="/#deals" onClick={()=>setMobileOpen(false)}>{t("deals")}</Link><Link href="/chat" onClick={()=>setMobileOpen(false)}><MessageCircle size={16}/> {t("support")}</Link><Link href={user ? "/account" : "/login"} onClick={()=>setMobileOpen(false)}>{t("myAccount")}</Link><form onSubmit={submitSearch}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><button><Search size={16}/></button></form></div>}
+      {mobileOpen && <div className="mobile-nav"><Link href="/" onClick={()=>setMobileOpen(false)}>{t("discover")}</Link><Link href="/#catalog" onClick={()=>setMobileOpen(false)}>{t("catalog")}</Link><Link href="/#deals" onClick={()=>setMobileOpen(false)}>{t("deals")}</Link>{user?.role !== "admin" && <Link href="/chat" onClick={()=>setMobileOpen(false)}><MessageCircle size={16}/> {t("support")}</Link>}<Link href={user?.role === "admin" ? "/admin" : user ? "/account" : "/login"} onClick={()=>setMobileOpen(false)}>{user?.role === "admin" ? t("adminDashboard") : t("myAccount")}</Link><form onSubmit={submitSearch}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t("search")}/><button><Search size={16}/></button></form></div>}
     </header>
   );
 }

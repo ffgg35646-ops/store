@@ -438,3 +438,16 @@ html[dir=rtl] .hero-image-dots{left:auto;right:20px}
  .admin-order-total{flex-direction:column;gap:5px}
  .admin-order-detail-actions>.button{flex:1 1 100%}
 }
+
+
+/* Customer authentication prompt shown before adding products to the cart */
+.auth-required-backdrop{z-index:120;background:#12101dcc;backdrop-filter:blur(4px)}
+.auth-required-modal{position:relative;width:min(100%,410px);padding:30px 26px 26px;background:#fff;border:1px solid var(--line);border-radius:19px;box-shadow:0 28px 90px #0005;text-align:center;display:grid;justify-items:center;gap:12px}
+.auth-required-close{position:absolute;top:13px;right:13px;width:32px;height:32px;border:1px solid var(--line);border-radius:9px;background:#fff;color:#6e7480;display:grid;place-items:center}
+.auth-required-icon{width:58px;height:58px;border-radius:18px;background:#f0edff;color:var(--accent);display:grid;place-items:center}
+.auth-required-modal h2{margin:4px 0 0;font:800 21px Manrope;color:var(--ink)}
+.auth-required-modal p{max-width:310px;margin:0;color:var(--muted);font-size:12px;line-height:1.8}
+.auth-required-actions{width:100%;display:grid;gap:9px;margin-top:7px}
+.auth-required-actions .button{min-height:43px}
+html[dir=rtl] .auth-required-close{right:auto;left:13px}
+@media(max-width:480px){.auth-required-modal{padding:27px 19px 21px;border-radius:16px}.auth-required-modal h2{font-size:19px}.auth-required-modal p{font-size:11px}}

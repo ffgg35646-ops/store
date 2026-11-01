@@ -4,11 +4,13 @@ import { randomBytes, createHash } from "node:crypto";
 import nodemailer from "nodemailer";
 import { dbConnect } from "@/lib/db";
 import { User } from "@/lib/models";
+import { getCurrentUser } from "@/lib/auth";
 import { notify } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
+    if (await getCurrentUser()) return NextResponse.json({ error: "Sign out of your current account before creating another account." }, { status: 409 });
     const body = await request.json();
     const name = String(body.name || "").trim();
     const email = String(body.email || "").trim().toLowerCase();
@@ -24,7 +26,9 @@ export async function POST(request: NextRequest) {
     const user = await User.create({ name, email, password: await bcrypt.hash(password, 12), emailVerified: false, emailVerificationTokenHash: createHash("sha256").update(verificationToken).digest("hex"), emailVerificationExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) });
     await notify({ userId: user._id, title: "Welcome to the store", body: "Your account is ready. Explore the catalog and discover digital essentials.", type: "system", href: "/account" });
     const base = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
-    const verifyUrl = `${base}/verify-email?token=${verificationToken}`;
+    const requestedNext = String(body.next || "").trim();
+    const safeNext = requestedNext.startsWith("/") && !requestedNext.startsWith("//") && !requestedNext.startsWith("/admin") ? requestedNext : "";
+    const verifyUrl = `${base}/verify-email?token=${verificationToken}${safeNext ? `&next=${encodeURIComponent(safeNext)}` : ""}`;
     if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD && process.env.SMTP_FROM) {
       const transport = nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT || 587), secure: String(process.env.SMTP_SECURE || "false") === "true", auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD } });
       try {
