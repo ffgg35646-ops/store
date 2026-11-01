@@ -11,7 +11,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   const { id } = await context.params;
   const body = await request.json();
   const update: any = {};
-  for (const key of ["name", "description", "image", "sortOrder", "isActive"]) if (body[key] !== undefined) update[key] = body[key];
+  for (const key of ["name", "description", "image", "icon", "sortOrder", "isActive"]) if (body[key] !== undefined) update[key] = body[key];
   if (body.name) update.slug = slugify(body.slug || body.name);
   const category = await Category.findByIdAndUpdate(id, update, { new: true, runValidators: true });
   if (!category) return NextResponse.json({ error: "Category not found." }, { status: 404 });

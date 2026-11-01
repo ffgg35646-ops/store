@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
-import { User, WalletTransaction } from "@/lib/models";
+import { User, WalletTransaction, PushSubscription } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { notify } from "@/lib/store";
 
@@ -10,8 +10,8 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   await dbConnect();
   const { id } = await context.params;
   const body = await request.json();
-  const user = await User.findById(id);
-  if (!user || user.role === "admin") return NextResponse.json({ error: "Customer not found." }, { status: 404 });
+  const user = await User.findOne({ _id: id, role: "customer", status: { $ne: "deleted" } });
+  if (!user) return NextResponse.json({ error: "Customer not found or already deleted." }, { status: 404 });
   if (body.status && ["active", "suspended"].includes(body.status)) user.status = body.status;
   if (body.name) user.name = String(body.name).slice(0, 80);
   if (body.walletAdjustment !== undefined) {
@@ -36,7 +36,22 @@ export async function DELETE(_request: NextRequest, context: { params: Promise<{
   if (admin?.role !== "admin") return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   await dbConnect();
   const { id } = await context.params;
-  const user = await User.findOneAndUpdate({ _id: id, role: "customer" }, { $set: { status: "deleted", email: `deleted+${id}@invalid.local`, name: "Deleted customer" } }, { new: true });
-  if (!user) return NextResponse.json({ error: "Customer not found." }, { status: 404 });
-  return NextResponse.json({ success: true, message: "Account deactivated and identifiers anonymized; order records remain intact." });
+  const user = await User.findOneAndUpdate(
+    { _id: id, role: "customer", status: { $ne: "deleted" } },
+    {
+      $set: {
+        status: "deleted",
+        email: `deleted+${id}@invalid.local`,
+        name: "Deleted customer",
+        emailVerified: false,
+        points: 0,
+        discountPercent: 0
+      },
+      $unset: { passwordResetTokenHash: 1, passwordResetExpiresAt: 1, emailVerificationTokenHash: 1, emailVerificationExpiresAt: 1 }
+    },
+    { new: true }
+  );
+  if (!user) return NextResponse.json({ error: "Customer not found or already deleted." }, { status: 404 });
+  await PushSubscription.deleteMany({ userId: user._id });
+  return NextResponse.json({ success: true, message: "Customer account deactivated and personal identifiers anonymized. Existing orders and financial history are preserved." });
 }

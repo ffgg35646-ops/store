@@ -27,6 +27,29 @@ const starterCategories = [
   ["Home Appliances & Electronics", "Home appliances, headphones, screens, chargers and electronics."]
 ] as const;
 
+const starterCategoryIcons: Record<string, string> = {
+  "Streaming & TV": "tv",
+  "Netflix Accounts": "tv",
+  "Shahid & Arabic Streaming": "tv",
+  "Music & Audio": "music",
+  "Gaming & Gift Cards": "gamepad-2",
+  "PlayStation & Xbox": "gamepad-2",
+  "Apple Services": "smartphone",
+  "Software & AI": "sparkles",
+  "Microsoft & Office": "code-2",
+  "Adobe & Creative Software": "camera",
+  "VPN & Security": "shield-check",
+  "Cloud Storage": "cloud",
+  "Productivity": "code-2",
+  "Design & Creative": "camera",
+  "Social Media & Creator Tools": "globe",
+  "iPhone": "smartphone",
+  "iPad & Tablets": "monitor",
+  "MacBook & Laptops": "monitor",
+  "Smartwatches & Wearables": "watch",
+  "Home Appliances & Electronics": "home"
+};
+
 const legacyCategoryAliases = [
   ["Streaming Accounts", "Streaming & TV"],
   ["Gaming Accounts", "Gaming & Gift Cards"],
@@ -56,11 +79,12 @@ export async function POST() {
     const slug = slugify(name);
     let category = await Category.findOne({ slug });
     if (!category) {
-      category = await Category.create({ name, slug, description, sortOrder: index + 1, isActive: true });
+      category = await Category.create({ name, slug, description, icon: starterCategoryIcons[name] || "boxes", sortOrder: index + 1, isActive: true });
       categoriesCreated++;
     } else {
       let changed = false;
       if (!category.description) { category.description = description; changed = true; }
+      if (!category.icon || category.icon === "boxes") { category.icon = starterCategoryIcons[name] || "boxes"; changed = true; }
       if (Number(category.sortOrder) !== index + 1) { category.sortOrder = index + 1; changed = true; }
       if (changed) { await category.save(); categoriesUpdated++; }
     }

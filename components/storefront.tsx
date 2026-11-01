@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Boxes, Flame, Headphones, ShieldCheck, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
+import { CategoryIcon, getCategoryIconName } from "@/components/category-icon";
 import { useLanguage } from "@/components/language-provider";
 
 export function Storefront({ initialQuery = "", initialCategory = "" }: { initialQuery?: string; initialCategory?: string }) {
@@ -67,7 +68,7 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
       <section className="trust-strip"><div><ShieldCheck/><span><b>{t("protectedPayments")}</b><small>{t("safeCheckout")}</small></span></div><div><Zap/><span><b>{t("quickDelivery")}</b><small>{t("digitalFulfillment")}</small></span></div><div><Headphones/><span><b>{t("realSupport")}</b><small>{t("hereToHelp")}</small></span></div><div><Sparkles/><span><b>{t("memberRewards")}</b><small>{t("offersMade")}</small></span></div></section>
       <main className="main-content">
         <section className="section-block" id="categories"><div className="section-heading"><div><span className="eyebrow">{t("browseYourWay")}</span><h2>{t("exploreCategories")}</h2></div><span className="heading-note">{t("findExactly")}</span></div>
-          {categoryCounts.length ? <div className="category-grid">{categoryCounts.map((c:any)=><Link href={`/?category=${c._id}#catalog`} key={c._id} className="category-card">{c.image ? <img src={c.image} alt=""/> : <div className="category-placeholder"><Boxes size={24}/></div>}<div><b>{c.name}</b><small>{c.count} {t("products")}</small></div><ArrowUpRight size={17}/></Link>)}</div> : <div className="empty-state compact"><Boxes/><b>{t("categoriesComing")}</b><span>{t("preparingCatalog")}</span></div>}
+          {categoryCounts.length ? <div className="category-grid">{categoryCounts.map((c:any)=><Link href={`/?category=${c._id}#catalog`} key={c._id} className="category-card"><span className="category-card-visual">{c.image&&<img src={c.image} alt=""/>}<span className="category-card-icon"><CategoryIcon name={getCategoryIconName(c)} size={22}/></span></span><div><b>{c.name}</b><small>{c.count} {t("products")}</small></div><ArrowUpRight size={17}/></Link>)}</div> : <div className="empty-state compact"><Boxes/><b>{t("categoriesComing")}</b><span>{t("preparingCatalog")}</span></div>}
         </section>
         <section className="section-block" id="deals"><div className="section-heading"><div><span className="eyebrow">{t("handPicked")}</span><h2><Flame className="title-icon"/> {t("featuredPicks")}</h2></div><span className="heading-note">{t("popularChoices")}</span></div>
           {loading ? <div className="loading-grid">{[1,2,3,4].map(i=><div className="skeleton-card" key={i}/>)}</div> : top.length ? <div className="product-grid">{top.slice(0,4).map(p=><ProductCard key={p._id} product={p}/>)}</div> : <div className="empty-state"><Sparkles/><b>{t("newDiscoveries")}</b><span>{t("firstFeatured")}</span></div>}

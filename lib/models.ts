@@ -24,6 +24,7 @@ const CategorySchema = new Schema({
   slug: { type: String, required: true, unique: true },
   description: { type: String, default: "" },
   image: { type: String, default: "" },
+  icon: { type: String, default: "boxes" },
   sortOrder: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
