@@ -8,6 +8,46 @@ import Stripe from "stripe";
 
 function makeOrderNumber() { return `ND-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`; }
 
+function ids(value: unknown): string[] {
+  return Array.isArray(value) ? value.map((id) => String(id)) : [];
+}
+
+function eligibleSubtotalForCoupon(coupon: any, userId: string, items: any[], products: any[]) {
+  const userTargets = ids(coupon.targetUserIds);
+  const legacyUserTargets = coupon.targetType === "users" ? ids(coupon.targetIds) : [];
+  const allowedUsers = userTargets.length ? userTargets : legacyUserTargets;
+  if (allowedUsers.length && !allowedUsers.includes(userId)) return 0;
+
+  let productTargets = ids(coupon.targetProductIds);
+  let categoryTargets = ids(coupon.targetCategoryIds);
+  const legacyProductTarget = !productTargets.length && !categoryTargets.length && coupon.targetType === "products";
+  const legacyCategoryTarget = !productTargets.length && !categoryTargets.length && coupon.targetType === "categories";
+  if (legacyProductTarget) productTargets = ids(coupon.targetIds);
+  if (legacyCategoryTarget) categoryTargets = ids(coupon.targetIds);
+
+  const restrictProducts = coupon.targetAllProducts === false || (coupon.targetAllProducts == null && (legacyProductTarget || legacyCategoryTarget));
+  const productMap = new Map<string, any>(products.map((product: any) => [String(product._id), product]));
+  const productSet = new Set(productTargets);
+  const categorySet = new Set(categoryTargets);
+
+  return items.reduce((sum: number, item: any) => {
+    const product = productMap.get(String(item.productId));
+    if (!product) return sum;
+    const categoryId = String(product.categoryId?._id || product.categoryId || "");
+    const matchesProduct = !restrictProducts || productSet.has(String(item.productId)) || categorySet.has(categoryId);
+    return matchesProduct ? sum + Number(item.unitPrice || 0) * Number(item.quantity || 0) : sum;
+  }, 0);
+}
+
+function discountForSubtotal(coupon: any, eligibleSubtotal: number) {
+  if (eligibleSubtotal <= 0) return 0;
+  let amount = coupon.discountType === "percentage"
+    ? eligibleSubtotal * Number(coupon.value || 0) / 100
+    : Number(coupon.value || 0);
+  if (Number(coupon.maxDiscount || 0) > 0) amount = Math.min(amount, Number(coupon.maxDiscount));
+  return roundMoney(Math.min(amount, eligibleSubtotal));
+}
+
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Sign in before checking out." }, { status: 401 });
@@ -51,28 +91,29 @@ export async function POST(request: NextRequest) {
     let discount = 0;
     let coupon: any = null;
     const code = String(body.couponCode || "").trim().toUpperCase();
+    const now = new Date();
+
     if (code) {
       coupon = await Coupon.findOne({ code, active: true });
-      const now = new Date();
-      if (!coupon || (coupon.startsAt && coupon.startsAt > now) || (coupon.endsAt && coupon.endsAt < now) || (coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) || subtotal < coupon.minOrder) return NextResponse.json({ error: "This coupon is invalid, expired, or not eligible." }, { status: 400 });
-      if (coupon.targetType === "users" && !coupon.targetIds.some((id: any) => String(id) === user._id)) return NextResponse.json({ error: "This coupon is not assigned to your account." }, { status: 403 });
-      let eligibleSubtotal = subtotal;
-      if (coupon.targetType === "products") {
-        const targetIds = new Set(coupon.targetIds.map((id: any) => String(id)));
-        const eligible = items.filter((item: any) => targetIds.has(String(item.productId)));
-        if (!eligible.length) return NextResponse.json({ error: "This coupon does not apply to these products." }, { status: 400 });
-        eligibleSubtotal = roundMoney(eligible.reduce((sum: number, item: any) => sum + item.unitPrice * item.quantity, 0));
+      if (!coupon || (coupon.startsAt && coupon.startsAt > now) || (coupon.endsAt && coupon.endsAt < now) || (coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) || subtotal < Number(coupon.minOrder || 0)) {
+        return NextResponse.json({ error: "This coupon is invalid, expired, or not eligible." }, { status: 400 });
       }
-      if (coupon.targetType === "categories") {
-        const selected = await Product.find({ _id: { $in: items.map((item: any) => item.productId) } }).select("_id categoryId");
-        const matchingProductIds = new Set(selected.filter((p: any) => coupon.targetIds.some((id: any) => String(id) === String(p.categoryId))).map((p: any) => String(p._id)));
-        const eligible = items.filter((item: any) => matchingProductIds.has(String(item.productId)));
-        if (!eligible.length) return NextResponse.json({ error: "This coupon does not apply to these products." }, { status: 400 });
-        eligibleSubtotal = roundMoney(eligible.reduce((sum: number, item: any) => sum + item.unitPrice * item.quantity, 0));
+      const eligibleSubtotal = roundMoney(eligibleSubtotalForCoupon(coupon, user._id, items, products));
+      if (eligibleSubtotal <= 0) return NextResponse.json({ error: "This discount is not assigned to your account or cart items." }, { status: 400 });
+      discount = discountForSubtotal(coupon, eligibleSubtotal);
+    } else {
+      const automaticCoupons = await Coupon.find({ active: true, autoApply: true }).sort({ value: -1 }).lean();
+      let bestDiscount = 0;
+      for (const campaign of automaticCoupons as any[]) {
+        if ((campaign.startsAt && campaign.startsAt > now) || (campaign.endsAt && campaign.endsAt < now) || (campaign.usageLimit > 0 && campaign.usedCount >= campaign.usageLimit) || subtotal < Number(campaign.minOrder || 0)) continue;
+        const eligibleSubtotal = roundMoney(eligibleSubtotalForCoupon(campaign, user._id, items, products));
+        const campaignDiscount = discountForSubtotal(campaign, eligibleSubtotal);
+        if (campaignDiscount > bestDiscount) {
+          bestDiscount = campaignDiscount;
+          coupon = campaign;
+        }
       }
-      discount = coupon.discountType === "percentage" ? eligibleSubtotal * coupon.value / 100 : coupon.value;
-      if (coupon.maxDiscount > 0) discount = Math.min(discount, coupon.maxDiscount);
-      discount = roundMoney(Math.min(discount, eligibleSubtotal));
+      discount = bestDiscount;
     }
     const total = roundMoney(subtotal - discount);
     const paymentMethod = ["wallet", "manual", "stripe"].includes(body.paymentMethod) ? body.paymentMethod : "manual";
