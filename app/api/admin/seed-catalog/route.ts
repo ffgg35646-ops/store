@@ -39,8 +39,16 @@ export async function POST() {
     const slug = slugify(name);
     const existing = await Category.findOne({ slug });
     if (existing) {
+      let changed = false;
       if (!existing.description) {
         existing.description = description;
+        changed = true;
+      }
+      if (!Number(existing.sortOrder)) {
+        existing.sortOrder = index + 1;
+        changed = true;
+      }
+      if (changed) {
         await existing.save();
         categoriesUpdated++;
       }
