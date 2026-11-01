@@ -4,11 +4,13 @@ import { randomBytes, createHash } from "node:crypto";
 import nodemailer from "nodemailer";
 import { dbConnect } from "@/lib/db";
 import { User } from "@/lib/models";
+import { getCurrentUser } from "@/lib/auth";
 import { notify } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
+    if (await getCurrentUser()) return NextResponse.json({ error: "Sign out of your current account before creating another account." }, { status: 409 });
     const body = await request.json();
     const name = String(body.name || "").trim();
     const email = String(body.email || "").trim().toLowerCase();
