@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 export async function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === "/admin/login") return NextResponse.next();
   const token = request.cookies.get("store_session")?.value;
   const loginUrl = new URL("/admin-login", request.url);
   const nextPath = request.nextUrl.pathname + request.nextUrl.search;
