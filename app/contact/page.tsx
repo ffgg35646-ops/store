@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { PageIntro } from "@/components/store-shell";
 import { MessageCircle, Mail, Package } from "lucide-react";

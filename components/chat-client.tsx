@@ -49,10 +49,10 @@ export function ChatClient({ adminMode=false }: {adminMode?:boolean}) {
       const response=await fetch(`/api/chat/${selected._id}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({content})});
       const data=await response.json();if(!response.ok)throw new Error(localizeCustomerError(data.error||"Message could not be sent.",language,t));
       setMessages(current=>[...current,data.message]);loadConversations();
-    }catch(err:any){setError(err.message);setText(content);}finally{setBusy(false);}
+    }catch(err:any){setError(localizeCustomerError(err.message,language,t));setText(content);}finally{setBusy(false);}
   }
   return <div className={adminMode?"admin-chat-wrap":"main-content narrow-page chat-page"}>
-    {!adminMode&&<PageIntro eyebrow="WE'RE HERE FOR YOU" title="Support chat" description="Chat directly with our team about products, payments or an order."/>}
+    {!adminMode&&<PageIntro eyebrow={localizeCustomerCopy("WE'RE HERE FOR YOU",language)} title={localizeCustomerCopy("Support chat",language)} description={localizeCustomerCopy("Chat directly with our team about products, payments or an order.",language)}/>}
     <div className="chat-layout">
       <aside className={selected?"chat-sidebar mobile-hidden":"chat-sidebar"}>
         <div className="chat-side-heading"><div><Headphones/><b>{adminMode?"Customer inbox":localizeCustomerCopy("Your conversations",language)}</b></div><span>{conversations.length}</span></div>
@@ -63,8 +63,8 @@ export function ChatClient({ adminMode=false }: {adminMode?:boolean}) {
       </aside>
       <section className={selected?"chat-window":"chat-window chat-window-empty"}>
         {selected?<><div className="chat-window-head"><button className="chat-back mobile-only" onClick={()=>setSelected(null)}><ArrowLeft size={17}/></button><div className="conversation-avatar"><UserRound size={18}/></div><div><b>{adminMode?(selected.userId?.name||"Customer"):selected.subject}</b><small>{selected.status==="open"?localizeCustomerCopy("Support team is available",language):localizeCustomerCopy("Conversation closed",language)}</small></div><span className="online-indicator">● {localizeCustomerCopy("Online",language)}</span></div>
-          <div className="message-list"><div className="chat-start-note"><span>✦</span><b>{localizeCustomerCopy("Start of conversation",language)}</b><small>{localizeCustomerCopy("Share your question and our team will reply here.",language)}</small></div>{messages.map((m:any)=><div key={m._id} className={String(m.senderId?._id||m.senderId)===String(user?._id)?"message-row mine":"message-row"}><div className="message-bubble"><p>{m.content}</p><small>{m.senderRole==="admin"?"Support team":m.senderId?.name||"You"} · {new Date(m.createdAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small></div></div>)}</div>
-          <form className="chat-compose" onSubmit={sendMessage}><input value={text} onChange={e=>setText(e.target.value)} placeholder={localizeCustomerCopy("Write your message...",language)} disabled={selected.status==="closed"||busy}/><button disabled={!text.trim()||busy||selected.status==="closed"} aria-label="Send message"><Send size={18}/></button></form>
+          <div className="message-list"><div className="chat-start-note"><span>✦</span><b>{localizeCustomerCopy("Start of conversation",language)}</b><small>{localizeCustomerCopy("Share your question and our team will reply here.",language)}</small></div>{messages.map((m:any)=><div key={m._id} className={String(m.senderId?._id||m.senderId)===String(user?._id)?"message-row mine":"message-row"}><div className="message-bubble"><p>{m.content}</p><small>{m.senderRole==="admin"?localizeCustomerCopy("Support team",language):m.senderId?.name||localizeCustomerCopy("You",language)} · {new Date(m.createdAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small></div></div>)}</div>
+          <form className="chat-compose" onSubmit={sendMessage}><input value={text} onChange={e=>setText(e.target.value)} placeholder={localizeCustomerCopy("Write your message...",language)} disabled={selected.status==="closed"||busy}/><button disabled={!text.trim()||busy||selected.status==="closed"} aria-label={language==="ar"?"إرسال الرسالة":"Send message"}><Send size={18}/></button></form>
         </>:<div className="chat-placeholder"><div className="chat-placeholder-icon"><MessageCircle size={28}/></div><h3>{localizeCustomerCopy("Select a conversation",language)}</h3><p>{localizeCustomerCopy("Choose a chat from the list to read messages and reply.",language)}</p></div>}
         {error&&<div className="chat-error">{error}</div>}
       </section>
