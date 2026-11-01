@@ -10,8 +10,8 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   await dbConnect();
   const { id } = await context.params;
   const body = await request.json();
-  const user = await User.findById(id);
-  if (!user || user.role === "admin") return NextResponse.json({ error: "Customer not found." }, { status: 404 });
+  const user = await User.findOne({ _id: id, role: "customer", status: { $ne: "deleted" } });
+  if (!user) return NextResponse.json({ error: "Customer not found or already deleted." }, { status: 404 });
   if (body.status && ["active", "suspended"].includes(body.status)) user.status = body.status;
   if (body.name) user.name = String(body.name).slice(0, 80);
   if (body.walletAdjustment !== undefined) {
