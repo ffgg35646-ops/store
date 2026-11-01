@@ -8,10 +8,11 @@ import { money } from "@/components/product-card";
 import { PageIntro } from "@/components/store-shell";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/components/language-provider";
+import { localizeCustomerCopy, localizeCustomerError, localizePaymentSetting } from "@/components/customer-localization";
 
 export function CheckoutClient() {
   const cart = useCart();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const router = useRouter();
   const [user,setUser] = useState<any>(null);
   const [settings,setSettings] = useState<any>(null);
@@ -28,10 +29,10 @@ export function CheckoutClient() {
       if(!user) { router.push("/login?next=/checkout"); return; }
       const response=await fetch("/api/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:cart.items.map(i=>({productId:i.productId,variant:i.variant||"",quantity:i.quantity})),couponCode:coupon,paymentMethod:method,paymentReference:reference})});
       const data=await response.json();
-      if(!response.ok) throw new Error(data.error||"Unable to place the order.");
+      if(!response.ok) throw new Error(localizeCustomerError(data.error||"Unable to place the order.",language,t));
       if(data.checkoutUrl){window.location.href=data.checkoutUrl;return;}
       cart.clear();router.push(`/orders/${data.orderId}`);
-    } catch(err:any){setError(err.message);} finally{setBusy(false);}
+    } catch(err:any){setError(localizeCustomerError(err.message,language,t));} finally{setBusy(false);}
   }
   if(!cart.items.length) return <main className="main-content narrow-page"><div className="empty-state"><CheckCircle2/><b>{t("emptyCart")}</b><Link href="/#catalog" className="button button-primary">{t("browseCatalogButton")}</Link></div></main>;
   return <main className="main-content narrow-page"><PageIntro eyebrow={t("secureCheckoutLabel").toUpperCase()} title={t("almostYours")} description={t("choosePayment")}/>
@@ -42,11 +43,11 @@ export function CheckoutClient() {
       <section className="checkout-panel"><div className="panel-heading"><span className="step-number">02</span><div><h2>{t("paymentMethod")}</h2><p>{t("secureMethods")}</p></div></div>
         <div className="payment-options">
           <label className={method==="stripe"?"payment-option selected":"payment-option"}><input type="radio" name="method" value="stripe" checked={method==="stripe"} onChange={()=>setMethod("stripe")}/><CreditCard/><span><b>{t("cardPayment")}</b><small>{t("stripePayment")}</small></span><i>{t("recommended")}</i></label>
-          <label className={method==="wallet"?"payment-option selected":"payment-option"}><input type="radio" name="method" value="wallet" checked={method==="wallet"} onChange={()=>setMethod("wallet")}/><Wallet/><span><b>{t("storeWallet")}</b><small>Balance: {money(Number(user?.walletBalance||0),currency)}</small></span></label>
-          <label className={method==="manual"?"payment-option selected":"payment-option"}><input type="radio" name="method" value="manual" checked={method==="manual"} onChange={()=>setMethod("manual")}/><LockKeyhole/><span><b>{t("manualTransfer")}</b><small>Submit your payment reference for review</small></span></label>
+          <label className={method==="wallet"?"payment-option selected":"payment-option"}><input type="radio" name="method" value="wallet" checked={method==="wallet"} onChange={()=>setMethod("wallet")}/><Wallet/><span><b>{t("storeWallet")}</b><small>{localizeCustomerCopy("Balance",language)}: {money(Number(user?.walletBalance||0),currency)}</small></span></label>
+          <label className={method==="manual"?"payment-option selected":"payment-option"}><input type="radio" name="method" value="manual" checked={method==="manual"} onChange={()=>setMethod("manual")}/><LockKeyhole/><span><b>{t("manualTransfer")}</b><small>{localizeCustomerCopy("Submit your payment reference for review",language)}</small></span></label>
         </div>
-        {method==="manual" && <div className="manual-payment-info"><b>{settings?.manualPaymentTitle||"Manual payment instructions"}</b><p>{settings?.manualPaymentInstructions||"Contact the store administrator for payment details."}</p><label className="field"><span>{t("transferReference")}</span><input value={reference} onChange={e=>setReference(e.target.value)} placeholder={t("transactionId")}/></label></div>}
-        {method==="stripe" && process.env.NEXT_PUBLIC_STRIPE_ENABLED!=="true" && <p className="inline-hint">Card checkout becomes available after the owner adds Stripe keys in the server environment. You can use wallet or manual transfer meanwhile.</p>}
+        {method==="manual" && <div className="manual-payment-info"><b>{localizePaymentSetting(settings?.manualPaymentTitle||"Manual payment instructions",language,"title")}</b><p>{localizePaymentSetting(settings?.manualPaymentInstructions||"Contact the store administrator for payment details.",language,"instructions")}</p><label className="field"><span>{t("transferReference")}</span><input value={reference} onChange={e=>setReference(e.target.value)} placeholder={t("transactionId")}/></label></div>}
+        {method==="stripe" && process.env.NEXT_PUBLIC_STRIPE_ENABLED!=="true" && <p className="inline-hint">{localizeCustomerCopy("Card checkout becomes available after the owner adds Stripe keys in the server environment. You can use wallet or manual transfer meanwhile.",language)}</p>}
       </section>
       <section className="checkout-panel"><div className="panel-heading"><span className="step-number">03</span><div><h2>{t("discountCode")}</h2><p>{t("haveCoupon")}</p></div></div><div className="coupon-input"><input value={coupon} onChange={e=>setCoupon(e.target.value.toUpperCase())} placeholder={t("enterCoupon")}/><span>{t("validateCoupon")}</span></div></section>
       {error&&<div className="form-error">{error}</div>}
