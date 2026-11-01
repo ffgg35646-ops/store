@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
-import { Product } from "@/lib/models";
+import { Coupon, InventoryItem, Order, Product } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { slugify } from "@/lib/store";
 
@@ -32,6 +32,26 @@ export async function DELETE(_request: NextRequest, context: { params: Promise<{
   if (user?.role !== "admin") return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   await dbConnect();
   const { id } = await context.params;
-  await Product.findByIdAndUpdate(id, { isActive: false });
-  return NextResponse.json({ success: true, message: "Product hidden; order history is preserved." });
+  const product = await Product.findById(id);
+  if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
+
+  const [usedInOrders, hasInventory] = await Promise.all([
+    Order.exists({ "items.productId": id }),
+    InventoryItem.exists({ productId: id })
+  ]);
+
+  if (!usedInOrders && !hasInventory) {
+    await Product.deleteOne({ _id: id });
+    await Coupon.updateMany({ targetProductIds: id }, { $pull: { targetProductIds: id } });
+    await Coupon.updateMany({ targetType: "products", targetIds: id }, { $pull: { targetIds: id } });
+    return NextResponse.json({ success: true, deleted: true, message: "Product permanently deleted." });
+  }
+
+  product.isActive = false;
+  await product.save();
+  return NextResponse.json({
+    success: true,
+    archived: true,
+    message: "Product removed from the storefront. It is preserved because it has order history or inventory."
+  });
 }
