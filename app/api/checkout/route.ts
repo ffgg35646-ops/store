@@ -26,7 +26,7 @@ function eligibleSubtotalForCoupon(coupon: any, userId: string, items: any[], pr
   if (legacyCategoryTarget) categoryTargets = ids(coupon.targetIds);
 
   const restrictProducts = coupon.targetAllProducts === false || legacyProductTarget || legacyCategoryTarget;
-  const productMap = new Map<string, any>(products.map((product: any) => [String(product._id), product]));
+  const productMap = new Map<string, any>(products.map((product: any) => [String(product._id), product] as [string, any]));
   const productSet = new Set(productTargets);
   const categorySet = new Set(categoryTargets);
 
