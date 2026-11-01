@@ -18,9 +18,9 @@ const dictionaries: Record<Language, Record<string, string>> = {
 
 const LanguageContext = createContext<{language:Language; setLanguage:(value:Language)=>void; t:(key:string)=>string}>({language:"en",setLanguage:()=>{},t:(key)=>dictionaries.en[key]||key});
 export function LanguageProvider({children}:{children:React.ReactNode}) {
-  const [language,setLanguageState] = useState<Language>("en");
+  const [language,setLanguageState] = useState<Language>("ar");
   useEffect(()=>{
-    try { const saved=localStorage.getItem("nova-language"); if(saved==="ar"||saved==="en") setLanguageState(saved); } catch {}
+    try { const saved=localStorage.getItem("nova-language"); if(saved==="ar"||saved==="en") setLanguageState(saved); else setLanguageState("ar"); } catch {}
   },[]);
   useEffect(()=>{
     document.documentElement.lang=language;
