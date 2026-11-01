@@ -11,6 +11,16 @@ button:disabled{opacity:.55;cursor:not-allowed}
 img{max-width:100%;display:block}
 .site-header{height:78px;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;backdrop-filter:blur(18px)}
 .header-inner{max-width:1240px;height:100%;margin:auto;padding:0 28px;display:flex;align-items:center;gap:34px}
+.site-header-internal{background:#17152b;border-bottom:1px solid #332d56;color:#fff}
+.site-header-internal .brand{color:#fff}
+.site-header-internal .brand small{color:#bdb5df}
+.site-header-internal .language-toggle{background:#211d39;border-color:#464064;color:#f4f1ff}
+.site-header-internal .header-icon{color:#e0dcf5}
+.site-header-internal .header-icon:hover{background:#302a4c;color:#fff}
+.site-header-internal .account-link{border-color:#464064;color:#fff}
+.site-header-internal .internal-header-title{margin-inline-start:auto;color:#c9c2e9;font-size:10px;font-weight:800;letter-spacing:1.6px;white-space:nowrap}
+.site-header-internal .header-actions{margin-inline-start:auto}
+
 .brand{display:flex;align-items:center;gap:10px;font:800 16px Manrope,sans-serif;letter-spacing:.04em;line-height:1.1;white-space:nowrap}
 .brand-mark{width:36px;height:36px;background:linear-gradient(145deg,#8d7cff,#6249e8);color:#fff;border-radius:12px;display:grid;place-items:center;font:800 20px Manrope;box-shadow:0 7px 16px #7057ed42}
 .brand-light{color:#8071e7}
@@ -239,7 +249,7 @@ html[dir=rtl] .notification-panel{right:auto;left:0}
 .chat-sidebar{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:510px}
 .chat-side-heading{height:62px;padding:0 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
 .chat-side-heading>div{display:flex;align-items:center;gap:9px}.chat-side-heading svg{color:var(--accent)}.chat-side-heading b{font-size:11px}.chat-side-heading>span{font-size:9px;color:var(--muted)}
-.new-chat-form{display:flex;gap:6px;padding:12px;border-bottom:1px solid var(--line)}.new-chat-form input{min-width:0;flex:1;border:1px solid var(--line);padding:8px;border-radius:7px;font-size:9px}.new-chat-form button{border:0;background:var(--accent);color:#fff;border-radius:7px;padding:0 8px;font-size:9px}
+.new-chat-form{display:block;padding:12px;border-bottom:1px solid var(--line)}.new-chat-form button{width:100%;min-height:40px;border:0;background:var(--accent);color:#fff;border-radius:8px;padding:0 12px;font-size:11px;font-weight:700}.new-chat-form button:hover{background:var(--accent-2)}
 .conversation-list{overflow:auto}.conversation-item{width:100%;display:flex;gap:9px;align-items:center;padding:12px;border:0;border-bottom:1px solid #f2f3f6;background:#fff;text-align:left}.conversation-item:hover,.conversation-item.active{background:#f8f7ff}
 .conversation-avatar{width:34px;height:34px;flex:none;background:#efedff;border-radius:50%;display:grid;place-items:center;color:#7463d3}
 .conversation-meta{flex:1;min-width:0}.conversation-meta b,.conversation-meta small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.conversation-meta b{font-size:10px}.conversation-meta small{font-size:9px;color:#969ca7;margin-top:3px}
@@ -316,6 +326,7 @@ html[dir=rtl] .notification-panel{right:auto;left:0}
  .admin-layout{grid-template-columns:220px minmax(0,1fr)}.admin-content{padding:22px}.admin-stat-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:760px){
+ .site-header-internal .internal-header-title{font-size:9px;letter-spacing:1px}
  .site-header{height:66px}.header-inner{padding:0 16px;gap:12px}.brand{font-size:14px}.brand-mark{width:32px;height:32px}.desktop-nav,.header-search,.user-menu{display:none}.header-actions{margin-left:auto;gap:5px}.header-icon{width:34px;height:34px}.mobile-toggle{display:grid;place-items:center;width:34px;height:34px;border:0;background:transparent;color:#5d6573}
  .mobile-nav{display:grid;padding:10px 17px 15px;gap:2px;background:#fff;border-top:1px solid var(--line);box-shadow:0 12px 20px #19162b12}.mobile-nav>a{padding:9px 5px;font-size:12px;display:flex;align-items:center;gap:7px}.mobile-nav form{display:flex;border:1px solid var(--line);border-radius:8px;padding:7px;margin-top:5px}.mobile-nav button{border:0;background:none;color:var(--accent)}
  .hero-section{min-height:0;padding:56px 20px 45px;display:block}.hero-content{width:auto;margin:0}.hero-content h1{font-size:43px}.hero-content>p{font-size:12px}.hero-actions{flex-wrap:wrap}.hero-proof{gap:12px;flex-wrap:wrap;margin-top:25px;font-size:9px}
