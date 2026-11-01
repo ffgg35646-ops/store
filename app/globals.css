@@ -535,3 +535,5 @@ html[dir=rtl] .category-rail-arrow.next{right:auto;left:7px}
 
 .category-rail-track{direction:ltr!important}
 html[dir=rtl] .category-rail-page{direction:rtl}
+
+/* Trigger fresh production build after category rail definition fix. */
