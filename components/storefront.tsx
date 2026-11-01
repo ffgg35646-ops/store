@@ -8,11 +8,11 @@ import { useLanguage } from "@/components/language-provider";
 
 export function Storefront({ initialQuery = "", initialCategory = "" }: { initialQuery?: string; initialCategory?: string }) {
   const { t } = useLanguage();
-  const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>(() => { try { return JSON.parse(sessionStorage.getItem("nova-products-cache") || "[]"); } catch { return []; } });
+  const [categories, setCategories] = useState<any[]>(() => { try { return JSON.parse(sessionStorage.getItem("nova-categories-cache") || "[]"); } catch { return []; } });
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState(initialCategory);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [slideIndex,setSlideIndex] = useState(0);
   const [heroImageIndex,setHeroImageIndex] = useState(0);
@@ -41,7 +41,7 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
       fetch("/api/products").then(r=>r.json()),
       fetch("/api/categories").then(r=>r.json()),
       fetch("/api/admin/settings").then(r=>r.json())
-    ]).then(([p,c,s]) => { if (active) { setProducts(p.products || []); setCategories(c.categories || []); setAnnouncement(s.settings?.announcement || ""); } })
+    ]).then(([p,c,s]) => { if (active) { setProducts(p.products || []); setCategories(c.categories || []); try { sessionStorage.setItem("nova-products-cache", JSON.stringify(p.products || [])); sessionStorage.setItem("nova-categories-cache", JSON.stringify(c.categories || [])); } catch {} setAnnouncement(s.settings?.announcement || ""); } })
       .catch(()=>{}).finally(()=>{ if(active) setLoading(false); });
     return ()=>{active=false;};
   }, []);
