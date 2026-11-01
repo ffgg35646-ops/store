@@ -65,6 +65,14 @@ function diagnoseSmtpError(error: unknown, stage: "verify" | "send"): SmtpDiagno
     .join(" ")
     .toLowerCase();
 
+  if (/invalid (?:smtp )?username|unknown username|username (?:not found|does not exist|is unknown)|user (?:not found|does not exist|is unknown)|no such user|account not found/i.test(details)) {
+    return { errorCode: "smtpUsernameInvalid", status: 502 };
+  }
+
+  if (/invalid password|password (?:is )?(?:incorrect|wrong|invalid)|bad password|password rejected/i.test(details)) {
+    return { errorCode: "smtpPasswordInvalid", status: 502 };
+  }
+
   if (
     code === "EAUTH" ||
     code === "ENOAUTH" ||
