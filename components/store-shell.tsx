@@ -18,6 +18,7 @@ export function StoreHeader() {
   const [search, setSearch] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
+    if (pathname.startsWith("/admin") || pathname === "/admin-login") return;
     let active = true;
     const load = async () => {
       try {
