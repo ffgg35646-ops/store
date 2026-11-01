@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 export async function PATCH(request: NextRequest) {
   const current = await getCurrentUser();
   if (!current) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  if (current.role !== "customer") return NextResponse.json({ error: "Customer account access only." }, { status: 403 });
   await dbConnect();
   const body = await request.json();
   const user = await User.findOne({ _id: current._id, status: "active" }).select("+password");
