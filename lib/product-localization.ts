@@ -44,8 +44,10 @@ export function localizeProduct<T extends Record<string, any>>(product: T, langu
   const shortDescription = `خدمة رقمية ${title}. اختر الباقة المناسبة وراجع المدة والتفاصيل قبل إتمام الطلب.`;
   const description = `${shortDescription}\n\nيتم تنفيذ الطلب يدويًا بعد تأكيد الدفع ومراجعة تفاصيل الطلب. سيتواصل فريق المتجر معك لتسليم الخدمة أو تفعيلها عبر صفحة الطلب أو محادثة الدعم. لا يتضمن هذا المنتج بيانات دخول أو رموز تفعيل جاهزة قبل الشراء.`;
   const deliveryInstructions = "بعد تأكيد الدفع، يراجع فريق المتجر الطلب ثم يرسل تفاصيل التفعيل أو التسليم من خلال صفحة الطلب أو محادثة الدعم. لا توجد بيانات دخول أو رموز جاهزة مخزنة مسبقًا لهذا المنتج.";
+  const colorNames: Record<string,string> = {black:"أسود",white:"أبيض",red:"أحمر",blue:"أزرق",navy:"كحلي",green:"أخضر",yellow:"أصفر",pink:"وردي",purple:"بنفسجي",orange:"برتقالي",gray:"رمادي",grey:"رمادي",silver:"فضي",gold:"ذهبي",brown:"بني",beige:"بيج",transparent:"شفاف","rose gold":"ذهبي وردي"};
+  const colors = Array.isArray(product.colors) ? product.colors.map((color:any)=>({...color,name:colorNames[String(color.name||"").trim().toLowerCase()]||color.name})) : product.colors;
   const category = product.categoryId && typeof product.categoryId === "object"
     ? { ...product.categoryId, name: arabicCategoryName(String(product.categoryId.slug || ""), String(product.categoryId.name || "")) }
     : product.categoryId;
-  return { ...product, title, shortDescription, description, deliveryInstructions, categoryId: category };
+  return { ...product, title, shortDescription, description, deliveryInstructions, categoryId: category, colors };
 }

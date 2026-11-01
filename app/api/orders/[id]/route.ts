@@ -5,8 +5,8 @@ import { Coupon, Order, User, WalletTransaction } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { fulfillOrder } from "@/lib/fulfillment";
 import { notify } from "@/lib/store";
-
-export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
+import { localizeProduct } from "@/lib/product-localization";
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   await dbConnect();
@@ -14,7 +14,9 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
   const order = await Order.findById(id).populate("userId", "name email").lean();
   if (!order) return NextResponse.json({ error: "Order not found." }, { status: 404 });
   if (user.role !== "admin" && String((order.userId as any)?._id || order.userId) !== user._id) return NextResponse.json({ error: "Not allowed." }, { status: 403 });
-  return NextResponse.json({ order });
+  const language = request.nextUrl.searchParams.get("lang") || "en";
+  const localizedOrder = language === "ar" ? { ...order, items: (order.items || []).map((item: any) => item.slug ? { ...item, title: localizeProduct(item, "ar").title } : item) } : order;
+  return NextResponse.json({ order: localizedOrder });
 }
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
