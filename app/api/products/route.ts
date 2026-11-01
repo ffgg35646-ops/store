@@ -3,6 +3,7 @@ import { dbConnect } from "@/lib/db";
 import { Category, Coupon, InventoryItem, Product, Settings } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { slugify } from "@/lib/store";
+import { localizeProduct } from "@/lib/product-localization";
 
 function escapeRegex(value: string) { const special = new Set([".", "*", "+", "?", "^", "$", "{", "}", "(", ")", "|", "[", "]", String.fromCharCode(92)]); return [...value].map((ch) => special.has(ch) ? String.fromCharCode(92) + ch : ch).join(""); }
 
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
   const ids = products.map((p: any) => p._id);
   const stockRows = await InventoryItem.aggregate([{ $match: { productId: { $in: ids }, status: "available" } }, { $group: { _id: "$productId", count: { $sum: 1 } } }]);
   const stockMap = new Map(stockRows.map((r: any) => [String(r._id), r.count]));
+  const language = params.get("lang") || "en";
   return NextResponse.json({ products: products.map((p: any) => {
     const basePrice = Number(p.price);
     const memberPrice = personalDiscount ? basePrice * (1 - personalDiscount / 100) : basePrice;
@@ -60,7 +62,8 @@ export async function GET(request: NextRequest) {
       if (matches) automaticDiscountPercent = Math.max(automaticDiscountPercent, Math.min(100, Number(campaign.value || 0)));
     }
     const price = Math.round(memberPrice * (1 - automaticDiscountPercent / 100) * 100) / 100;
-    return { ...p, basePrice, personalDiscountPercent: personalDiscount, automaticDiscountPercent, price, availableStock: stockMap.get(String(p._id)) || 0 };
+    const product = { ...p, basePrice, personalDiscountPercent: personalDiscount, automaticDiscountPercent, price, availableStock: stockMap.get(String(p._id)) || 0 };
+    return localizeProduct(product, language);
   }) });
 }
 export async function POST(request: NextRequest) {
