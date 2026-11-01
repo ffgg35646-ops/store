@@ -31,6 +31,8 @@ export function AdminPanel({section="overview"}:{section:string}) {
   const [deliveryValues,setDeliveryValues]=useState("");
   const [query,setQuery]=useState("");
   const [userFilter,setUserFilter]=useState<"all"|"active"|"suspended">("all");
+  const [customerCreateOpen,setCustomerCreateOpen]=useState(false);
+  const [newCustomer,setNewCustomer]=useState({name:"",email:"",password:""});
   const [orderTab,setOrderTab]=useState<"new"|"shipping"|"history">("new");
   const [expandedOrderId,setExpandedOrderId]=useState("");
   const [historyPage,setHistoryPage]=useState(1);
@@ -90,12 +92,10 @@ export function AdminPanel({section="overview"}:{section:string}) {
     await api(urls[section],"DELETE");
   }
   async function userAction(item:any,patch:any){await api(`/api/admin/users/${item._id}`,"PATCH",patch);}
-  async function createCustomer(){
-    const name=window.prompt("Customer full name"); if(name===null)return;
-    const email=window.prompt("Customer email address"); if(email===null)return;
-    const password=window.prompt("Temporary password (at least 8 characters)"); if(password===null)return;
-    const d=await api("/api/admin/users","POST",{name,email,password});
-    if(d)setResult("Customer created. Share the temporary password securely.");
+  async function createCustomer(e:React.FormEvent){
+    e.preventDefault();
+    const d=await api("/api/admin/users","POST",newCustomer);
+    if(d){setCustomerCreateOpen(false);setNewCustomer({name:"",email:"",password:""});}
   }
   async function orderAction(order:any,action:string){
     const d=await api(`/api/orders/${order._id}`,"PATCH",{action});
@@ -185,7 +185,7 @@ export function AdminPanel({section="overview"}:{section:string}) {
         <div><span>Suspended accounts</span><strong>{suspendedCustomerCount}</strong><small>Temporarily blocked</small></div>
       </div>
       <div className="admin-list-card full-width-card">
-        <div className="data-card-heading"><div><h2>Customer directory</h2><p className="field-help">Manage access, wallet adjustments, rewards and customer discounts.</p></div><div className="admin-record-actions"><span>{visibleCustomers.length} shown</span><button type="button" className="button button-primary" onClick={createCustomer}><Plus size={14}/> Add customer</button></div></div>
+        <div className="data-card-heading"><div><h2>Customer directory</h2><p className="field-help">Manage access, wallet adjustments, rewards and customer discounts.</p></div><div className="admin-record-actions"><span>{visibleCustomers.length} shown</span><button type="button" className="button button-primary" onClick={()=>setCustomerCreateOpen(true)}><Plus size={14}/> Add customer</button></div></div>
         <div className="admin-users-toolbar"><div className="admin-list-search"><Search size={15}/><input placeholder="Search by name or email..." value={query} onChange={e=>setQuery(e.target.value)}/></div><div className="admin-user-filters"><button type="button" className={userFilter==="all"?"active":""} onClick={()=>setUserFilter("all")}>All <b>{data.length}</b></button><button type="button" className={userFilter==="active"?"active":""} onClick={()=>setUserFilter("active")}>Active <b>{activeCustomerCount}</b></button><button type="button" className={userFilter==="suspended"?"active":""} onClick={()=>setUserFilter("suspended")}>Suspended <b>{suspendedCustomerCount}</b></button></div></div>
         <div className="admin-record-list admin-customer-list">
           {visibleCustomers.map((u:any)=><article className="admin-user-row" key={u._id}>
@@ -203,5 +203,13 @@ export function AdminPanel({section="overview"}:{section:string}) {
         </div>
       </div>
     </div>}
+    {section==="users"&&customerCreateOpen&&<div className="modal-backdrop" onClick={()=>setCustomerCreateOpen(false)}><form className="admin-modal" onSubmit={createCustomer} onClick={e=>e.stopPropagation()}>
+      <div className="data-card-heading"><div><h2>Add customer</h2><p className="field-help">Create a customer login for the storefront.</p></div><button type="button" className="text-button" onClick={()=>setCustomerCreateOpen(false)}>Close</button></div>
+      <label>Full name<input required minLength={2} maxLength={80} value={newCustomer.name} onChange={e=>setNewCustomer(v=>({...v,name:e.target.value}))} placeholder="Customer name"/></label>
+      <label>Email address<input required type="email" value={newCustomer.email} onChange={e=>setNewCustomer(v=>({...v,email:e.target.value}))} placeholder="name@example.com"/></label>
+      <label>Temporary password<input required minLength={8} type="password" autoComplete="new-password" value={newCustomer.password} onChange={e=>setNewCustomer(v=>({...v,password:e.target.value}))} placeholder="At least 8 characters"/></label>
+      <p className="field-help">Share the temporary password with the customer through a secure channel.</p>
+      <button className="button button-primary button-wide" disabled={busy}><Plus size={15}/> {busy?"Creating account...":"Create customer account"}</button>
+    </form></div>}
   </div>;
 }
