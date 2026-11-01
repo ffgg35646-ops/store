@@ -681,3 +681,46 @@ html[dir=rtl] .profile-banner-label{right:auto;left:22px}
  .orders-workspace{padding:11px}.orders-toolbar{align-items:stretch;flex-direction:column}.orders-filter-list{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}.orders-filter-list button{padding:8px 10px}.orders-search{width:100%;min-width:0}
  .order-history-card{padding:12px}.order-history-number{gap:8px}.order-history-icon{width:34px;height:34px}.order-history-number b{font-size:10px}.order-history-card>.status-pill{font-size:7px;padding:5px}.order-history-items{margin:10px 0;padding:8px}.order-history-items span{font-size:9px}.order-history-bottom{align-items:flex-end}.order-history-total{gap:5px}.order-history-total strong{font-size:12px}.order-view-button{padding:7px 8px;font-size:9px}
 }
+
+
+/* Mobile customer navigation: fixed bottom bar with paged destinations */
+.customer-bottom-nav{display:none}
+@media(max-width:900px){
+ body:has(.customer-sidebar){padding-inline-start:0;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+ .customer-sidebar{display:none}
+ .customer-bottom-nav{position:fixed;z-index:110;inset-inline:0;bottom:0;display:flex;align-items:center;gap:5px;min-height:68px;padding:7px 9px calc(7px + env(safe-area-inset-bottom));background:rgba(20,24,40,.97);border-top:1px solid #343b51;box-shadow:0 -8px 30px #10132324;backdrop-filter:blur(18px);color:#d8dcec}
+ .customer-bottom-links{display:flex;align-items:stretch;justify-content:space-around;gap:3px;flex:1;min-width:0}
+ .customer-bottom-links>a{min-width:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:5px 2px;border-radius:10px;color:#aab2c4;text-align:center;font-size:9px;font-weight:700;line-height:1.15;white-space:nowrap}
+ .customer-bottom-links>a svg{flex:none;opacity:.9}
+ .customer-bottom-links>a.active{background:#b58b4926;color:#e5c58f}
+ .customer-bottom-links>a.active svg{color:#d2ad70}
+ .customer-bottom-arrow{width:31px;height:38px;flex:none;display:grid;place-items:center;border:1px solid #42495d;border-radius:10px;background:#252b40;color:#e7e9f0}
+ .customer-bottom-arrow:disabled{opacity:.28}
+ .customer-bottom-more{width:51px;min-width:51px;min-height:45px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;border-radius:10px;background:transparent;color:#aab2c4;font-size:9px;font-weight:700}
+ .customer-bottom-more.active{background:#b58b4926;color:#e5c58f}
+ .customer-more-backdrop{position:fixed;inset:0;z-index:-1;border:0;background:#080b1590}
+ .customer-more-panel{position:absolute;inset-inline-end:10px;bottom:calc(100% + 10px);width:min(310px,calc(100vw - 20px));padding:15px;background:#fff;border:1px solid #e7e9ee;border-radius:17px;box-shadow:0 16px 48px #080b1540;color:#252b39}
+ .customer-more-heading{display:grid;gap:3px;padding:2px 3px 12px;border-bottom:1px solid #edf0f4}
+ .customer-more-heading strong{font-size:13px}
+ .customer-more-heading small{font-size:10px;color:#8a92a0}
+ .customer-more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:12px 0}
+ .customer-more-grid>a{min-width:0;display:flex;align-items:center;gap:8px;padding:11px 9px;border:1px solid #edf0f4;border-radius:10px;color:#626c7d;font-size:10px;font-weight:700}
+ .customer-more-grid>a svg{color:#8b79e8;flex:none}
+ .customer-more-grid>a.active{border-color:#ded8ff;background:#f5f3ff;color:#6655cf}
+ .customer-more-logout{width:100%;display:flex;align-items:center;gap:8px;padding:11px 9px;border:0;border-top:1px solid #edf0f4;background:#fff;color:#c35d68;text-align:start;font-size:11px;font-weight:700}
+}
+@media(max-width:450px){
+ .customer-bottom-nav{gap:3px;padding-inline:7px}
+ .customer-bottom-links>a{font-size:8px;gap:3px}
+ .customer-bottom-links>a svg{width:18px;height:18px}
+ .customer-bottom-more{width:47px;min-width:47px;font-size:8px}
+ .customer-bottom-arrow{width:28px;height:36px}
+}
+@media(max-width:360px){
+ .customer-bottom-links>a{padding-inline:1px;font-size:8px}
+ .customer-bottom-links>a svg{width:17px;height:17px}
+ .customer-more-panel{width:calc(100vw - 14px);inset-inline-end:7px}
+}
+@media(min-width:901px){
+ .customer-bottom-nav{display:none}
+}
