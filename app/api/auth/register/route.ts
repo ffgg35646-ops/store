@@ -174,16 +174,27 @@ export async function POST(request: NextRequest) {
         await transport.verify();
       } catch (mailError) {
         const diagnostic = diagnoseSmtpError(mailError, "verify");
+        const smtpError = mailError as any;
+        const smtpHost = String(smtpError?.hostname || smtp.host);
+        const smtpDnsCode = String(smtpError?.errno || smtpError?.originalCode || "");
         console.error("SMTP verification check failed", {
-          code: (mailError as any)?.code,
-          originalCode: (mailError as any)?.originalCode,
-          command: (mailError as any)?.command,
-          responseCode: (mailError as any)?.responseCode,
+          code: smtpError?.code,
+          originalCode: smtpError?.originalCode,
+          command: smtpError?.command,
+          responseCode: smtpError?.responseCode,
+          hostname: smtpHost,
+          dnsCode: smtpDnsCode,
+          syscall: smtpError?.syscall,
           diagnostic: diagnostic.errorCode,
         });
         transport.close();
         activeTransport = null;
-        return NextResponse.json({ errorCode: diagnostic.errorCode }, { status: diagnostic.status });
+        return NextResponse.json({
+          errorCode: diagnostic.errorCode,
+          ...(diagnostic.errorCode === "smtpDnsFailed"
+            ? { smtpHost, smtpPort: smtp.port, smtpDnsCode }
+            : {}),
+        }, { status: diagnostic.status });
       }
     }
 
