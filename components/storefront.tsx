@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Boxes, Flame, Headphones, ShieldCheck, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Boxes, Headphones, ShieldCheck, Sparkles, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { useLanguage } from "@/components/language-provider";
 
@@ -47,8 +47,6 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
     return ()=>{active=false;};
   }, [language]);
   const visible = products.filter(p => (!query || (p.title + " " + p.shortDescription).toLowerCase().includes(query.toLowerCase())) && (!category || String(p.categoryId?._id || p.categoryId) === category));
-  const featured = visible.filter(p=>p.isFeatured);
-  const top = featured.length ? featured : visible.slice(0,4);
   const categoryCounts = categories.map(c => ({...c, count: products.filter(p=>String(p.categoryId?._id || p.categoryId)===String(c._id)).length}));
   return (
     <>
