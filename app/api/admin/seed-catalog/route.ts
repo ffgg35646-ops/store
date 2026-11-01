@@ -5,26 +5,26 @@ import { getCurrentUser } from "@/lib/auth";
 import { slugify } from "@/lib/store";
 
 const starterCategories = [
-  ["Apple ID & iCloud Accounts", "Apple IDs, iCloud accounts and Apple account services."],
-  ["Apple Music & TV", "Apple Music, Apple TV and Apple digital subscriptions."],
-  ["Netflix Accounts", "Netflix memberships and streaming plans."],
-  ["Shahid & Arabic Streaming", "Shahid and Arabic entertainment subscriptions."],
-  ["Streaming Services", "Disney+, Prime Video and other streaming services."],
-  ["Spotify & Music", "Music subscriptions and premium audio services."],
-  ["YouTube Premium", "YouTube Premium and related creator services."],
-  ["Gaming Accounts", "Gaming profiles, accounts and digital game access."],
-  ["PlayStation & Xbox", "Console memberships, online services and subscriptions."],
-  ["Game Gift Cards", "Gaming top-ups, wallet cards and digital codes."],
-  ["AI Tools & Accounts", "AI assistants, image tools and productivity subscriptions."],
+  ["Streaming & TV", "Streaming memberships and entertainment subscriptions."],
+  ["Netflix Accounts", "Netflix memberships and account plans."],
+  ["Shahid & Arabic Streaming", "Shahid and other Arabic entertainment subscriptions."],
+  ["Music & Audio", "Spotify, Apple Music and premium audio services."],
+  ["YouTube Premium", "YouTube Premium memberships and related services."],
+  ["Gaming & Gift Cards", "Gaming accounts, subscriptions, top-ups and gift cards."],
+  ["PlayStation & Xbox", "Console memberships, online services and digital access."],
+  ["Apple Services", "Apple IDs, iCloud accounts, Apple Music and Apple services."],
+  ["Software & AI", "Software licenses, AI tools and digital productivity services."],
   ["Microsoft & Office", "Microsoft 365, Windows and Office products."],
-  ["Adobe & Creative Software", "Creative Cloud, editing and design software."],
-  ["VPN & Cybersecurity", "VPN, privacy, antivirus and security subscriptions."],
+  ["Adobe & Creative Software", "Creative Cloud, photo, video and design software."],
+  ["VPN & Security", "VPN, privacy, antivirus and online security subscriptions."],
+  ["Cloud Storage", "Cloud storage, backup and file-sharing services."],
+  ["Productivity", "Work, learning and productivity memberships."],
+  ["Design & Creative", "Design resources, creative tools and digital assets."],
   ["iPhone", "New and pre-owned iPhone devices and accessories."],
   ["iPad & Tablets", "iPad devices, tablets and related accessories."],
   ["MacBook & Laptops", "MacBook, Windows laptops and computing devices."],
   ["Smartwatches & Wearables", "Apple Watch, smart bands and wearable devices."],
-  ["Home Appliances", "Home and kitchen electrical appliances."],
-  ["Electronics & Accessories", "Headphones, screens, chargers and consumer electronics."]
+  ["Home Appliances & Electronics", "Home appliances, headphones, screens, chargers and electronics."]
 ];
 
 export async function POST() {
