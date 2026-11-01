@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
-import { Category, InventoryItem, Product, Settings } from "@/lib/models";
+import { Category, Coupon, InventoryItem, Product, Settings } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { slugify } from "@/lib/store";
 
@@ -19,10 +19,43 @@ export async function GET(request: NextRequest) {
   if (query) filter.$or = [{ title: new RegExp(escapeRegex(query), "i") }, { shortDescription: new RegExp(escapeRegex(query), "i") }];
   const products = await Product.find(filter).populate("categoryId", "name slug").sort({ sortOrder: 1, createdAt: -1 }).limit(100).lean();
   const personalDiscount = user?.role === "customer" ? Math.min(100, Math.max(0, Number(user.discountPercent || 0))) : 0;
+  const now = new Date();
+  const campaigns = user?.role === "customer"
+    ? await Coupon.find({ active: true, autoApply: true, discountType: "percentage" }).lean()
+    : [];
+  const customerId = String(user?._id || "");
+  const eligibleCampaigns = (campaigns as any[]).filter((campaign) => {
+    if ((campaign.startsAt && campaign.startsAt > now) || (campaign.endsAt && campaign.endsAt < now)) return false;
+    if (campaign.usageLimit > 0 && campaign.usedCount >= campaign.usageLimit) return false;
+    const selectedUsers = (campaign.targetUserIds || []).map((id: any) => String(id));
+    const legacyUsers = campaign.targetType === "users" ? (campaign.targetIds || []).map((id: any) => String(id)) : [];
+    const allowedUsers = selectedUsers.length ? selectedUsers : legacyUsers;
+    return !allowedUsers.length || allowedUsers.includes(customerId);
+  });
   const ids = products.map((p: any) => p._id);
   const stockRows = await InventoryItem.aggregate([{ $match: { productId: { $in: ids }, status: "available" } }, { $group: { _id: "$productId", count: { $sum: 1 } } }]);
   const stockMap = new Map(stockRows.map((r: any) => [String(r._id), r.count]));
-  return NextResponse.json({ products: products.map((p: any) => ({ ...p, basePrice: p.price, personalDiscountPercent: personalDiscount, price: personalDiscount ? Math.round(Number(p.price) * (1 - personalDiscount / 100) * 100) / 100 : p.price, availableStock: stockMap.get(String(p._id)) || 0 })) });
+  return NextResponse.json({ products: products.map((p: any) => {
+    const basePrice = Number(p.price);
+    const memberPrice = personalDiscount ? basePrice * (1 - personalDiscount / 100) : basePrice;
+    let automaticDiscountPercent = 0;
+    for (const campaign of eligibleCampaigns as any[]) {
+      const productTargets = (campaign.targetProductIds || []).map((id: any) => String(id));
+      const categoryTargets = (campaign.targetCategoryIds || []).map((id: any) => String(id));
+      const legacyTargets = (campaign.targetIds || []).map((id: any) => String(id));
+      const legacyProduct = campaign.targetType === "products" && !productTargets.length && !categoryTargets.length;
+      const legacyCategory = campaign.targetType === "categories" && !productTargets.length && !categoryTargets.length;
+      const restricted = campaign.targetAllProducts === false || (campaign.targetAllProducts == null && (legacyProduct || legacyCategory));
+      const matches = !restricted
+        || productTargets.includes(String(p._id))
+        || categoryTargets.includes(String(p.categoryId?._id || p.categoryId))
+        || (legacyProduct && legacyTargets.includes(String(p._id)))
+        || (legacyCategory && legacyTargets.includes(String(p.categoryId?._id || p.categoryId)));
+      if (matches) automaticDiscountPercent = Math.max(automaticDiscountPercent, Math.min(100, Number(campaign.value || 0)));
+    }
+    const price = Math.round(memberPrice * (1 - automaticDiscountPercent / 100) * 100) / 100;
+    return { ...p, basePrice, personalDiscountPercent: personalDiscount, automaticDiscountPercent, price, availableStock: stockMap.get(String(p._id)) || 0 };
+  }) });
 }
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
