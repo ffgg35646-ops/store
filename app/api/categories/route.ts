@@ -21,6 +21,6 @@ export async function POST(request: NextRequest) {
   const base = slugify(body.slug || name);
   let slug = base, suffix = 1;
   while (await Category.exists({ slug })) slug = `${base}-${suffix++}`;
-  const category = await Category.create({ name, slug, description: body.description || "", image: body.image || "", sortOrder: Number(body.sortOrder || 0), isActive: body.isActive !== false });
+  const category = await Category.create({ name, slug, description: body.description || "", image: body.image || "", icon: String(body.icon || "boxes"), sortOrder: Number(body.sortOrder || 0), isActive: body.isActive !== false });
   return NextResponse.json({ category }, { status: 201 });
 }
