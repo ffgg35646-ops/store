@@ -13,7 +13,7 @@ export function PasswordResetForm({mode}:{mode:"forgot"|"reset"}){
   if(mode==="reset"&&password!==confirm)throw new Error(copy("The passwords do not match."));
   const response=await fetch(mode==="forgot"?"/api/auth/forgot-password":"/api/auth/reset-password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(mode==="forgot"?{email}:{token,password})});
   const data=await response.json();if(!response.ok)throw new Error(localizeCustomerError(data.error||"Unable to process this request.",language,(k)=>k));
-  setMessage(copy(mode==="forgot"?"If an active account exists, reset instructions will be sent.":"Password updated. You can now sign in."));
+  setMessage(mode==="forgot"?copy("If an active account exists, reset instructions will be sent."):copy("Password updated. You can now sign in."));
   if(mode==="reset")setTimeout(()=>router.push("/login"),1200);
  }catch(err:any){setError(localizeCustomerError(err.message||"Unable to process this request.",language,(k)=>k));}finally{setBusy(false);}}
  return <main className="auth-page"><section className="auth-card"><div className="auth-logo"><span className="brand-mark">{mode==="forgot"?<Mail size={20}/>:<KeyRound size={20}/>}</span></div><span className="eyebrow">{copy("ACCOUNT RECOVERY")}</span><h1>{copy(mode==="forgot"?"Reset your password":"Choose a new password")}</h1><p>{copy(mode==="forgot"?"Enter the email address linked to your account. If it exists, we'll send a secure reset link.":"Your reset link is time-limited and can only be used once.")}</p><form className="form-stack" onSubmit={submit}>

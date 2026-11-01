@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CheckCircle2, CircleUserRound, LockKeyhole, Mail, Save, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { PageIntro } from "@/components/store-shell";
 import { useLanguage } from "@/components/language-provider";
-import { localizeCustomerError } from "@/components/customer-localization";
+import { localizeCustomerError, localizeCustomerCopy } from "@/components/customer-localization";
 
 export function ProfileClient() {
   const { t, language } = useLanguage();
@@ -82,7 +82,7 @@ export function ProfileClient() {
         <div className="profile-hero-banner">
           <span className="profile-banner-orb profile-banner-orb-one" />
           <span className="profile-banner-orb profile-banner-orb-two" />
-          <span className="profile-banner-label"><Sparkles size={14} /> NOVA DIGITAL MEMBER</span>
+          <span className="profile-banner-label"><Sparkles size={14} /> {localizeCustomerCopy("NOVA DIGITAL MEMBER",language)}</span>
         </div>
         <div className="profile-hero-content">
           <div className="profile-avatar-large">{user.name?.charAt(0)?.toUpperCase() || "U"}</div>

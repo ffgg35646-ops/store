@@ -59,6 +59,10 @@ COPY["View my orders"]="عرض طلباتي";
 COPY["Account help"]="مساعدة الحساب";
 COPY["Manage your profile, wallet and notifications from your account page."]="أدر ملفك الشخصي ومحفظتك وإشعاراتك من صفحة حسابك.";
 COPY["My account"]="حسابي";
+COPY["Card checkout becomes available after the owner adds Stripe keys in the server environment. You can use wallet or manual transfer meanwhile."]="الدفع بالبطاقة غير متاح حاليًا. يمكنك استخدام المحفظة أو التحويل اليدوي.";
+COPY["If an active account exists, reset instructions will be sent."]="إذا كان هناك حساب نشط مرتبط بهذا البريد، فسيتم إرسال تعليمات استعادة كلمة المرور إليه.";
+COPY["Customer"]="العميل";
+COPY["Support conversation"]="محادثة الدعم";
 export function localizeCustomerCopy(value:string,language:string){return language==="ar"?(COPY[value]||value):value;}
 export function localizeCustomerError(message:string,language:string,t:(key:string)=>string){if(language!=="ar")return message;const map:Record<string,string>={"This coupon is invalid, expired, or not eligible.":"كود الخصم غير صالح أو منتهي الصلاحية أو لا تنطبق شروطه على الطلب.","This discount is not assigned to your account or cart items.":"هذا الخصم غير مخصص لحسابك أو للمنتجات الموجودة في سلتك.","Your wallet balance is not enough.":"رصيد محفظتك لا يكفي لإتمام الطلب.","Sign in required.":"يرجى تسجيل الدخول أولًا.","Not allowed.":"غير مسموح لك بالوصول إلى هذا الطلب."};return map[message]||localizeCustomerCopy(message,language)||message||t("checkoutFailed");}
 export function localizePaymentSetting(value:string,language:string,kind:"title"|"instructions"){if(language!=="ar")return value;if(kind==="title"&&value==="Bank transfer")return "تحويل بنكي";if(kind==="title"&&value==="Manual payment instructions")return "تعليمات الدفع اليدوي";if(kind==="instructions"&&["Contact support for payment instructions.","Contact the store administrator for payment details."].includes(value))return "تواصل مع الدعم للحصول على تعليمات الدفع.";return value;}

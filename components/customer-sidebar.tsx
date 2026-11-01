@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { BookOpen, ChevronLeft, ChevronRight, ClipboardList, LogOut, MessageCircle, MoreHorizontal, ShoppingBag, UserRound, X } from "lucide-react";
 import { useLanguage } from "@/components/language-provider";
+import { localizeCustomerCopy } from "@/components/customer-localization";
 
 const items = [
   { href: "/", key: "catalog", icon: BookOpen },
@@ -85,7 +86,7 @@ export function CustomerSidebar({ user }: { user: any }) {
           <span><b>{user.name}</b><small>{user.email}</small></span>
         </div>
       </div>
-      <span className="customer-sidebar-caption">{language === "ar" ? "حسابي" : "MY ACCOUNT"}</span>
+      <span className="customer-sidebar-caption">{localizeCustomerCopy("MY ACCOUNT",language)}</span>
       <nav>
         {items.map(item => {
           const Icon = item.icon;
