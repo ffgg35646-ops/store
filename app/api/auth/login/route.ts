@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/db";
 import { User } from "@/lib/models";
-import { createSession, sessionCookieName } from "@/lib/auth";
+import { createSession, getCurrentUser, sessionCookieName } from "@/lib/auth";
 import { safeUser } from "@/lib/store";
 
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
+    if (await getCurrentUser()) return NextResponse.json({ error: "Sign out of your current account before switching accounts." }, { status: 409 });
     const { email, password } = await request.json();
     const user = await User.findOne({ email: String(email || "").trim().toLowerCase() }).select("+password");
     if (!user || user.role !== "customer" || user.status !== "active" || !(await bcrypt.compare(String(password || ""), user.password))) return NextResponse.json({ error: "Email or password is incorrect." }, { status: 401 });
