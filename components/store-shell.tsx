@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCart } from "@/components/cart-provider";
 import { useLanguage } from "@/components/language-provider";
 import { CustomerSidebar } from "@/components/customer-sidebar";
+import { localizeNotification } from "@/components/customer-localization";
 
 export function StoreHeader() {
   const cart = useCart();
@@ -92,7 +93,7 @@ export function StoreHeader() {
               <div className="notification-panel-list">
                 {notifications.length ? notifications.slice(0, 6).map(note => <Link href={note.href || "/account?tab=notifications"} key={note._id} className={note.isRead ? "notification-preview-row" : "notification-preview-row unread"} onClick={() => { void markNotificationRead(note); setNotificationOpen(false); }}>
                   <i className="notification-preview-indicator"/>
-                  <span className="notification-preview-copy"><b>{note.title}</b><span>{note.body}</span><small>{new Date(note.createdAt).toLocaleString(language === "ar" ? "ar-EG" : "en-US")}</small></span>
+                  <span className="notification-preview-copy"><b>{localizeNotification(note.title,note.body,language).title}</b><span>{localizeNotification(note.title,note.body,language).body}</span><small>{new Date(note.createdAt).toLocaleString(language === "ar" ? "ar-EG" : "en-US")}</small></span>
                   {!note.isRead && <Check size={15} className="notification-preview-check"/>}
                 </Link>) : <div className="notification-preview-empty"><Bell size={21}/><span>{user ? t("noNotifications") : t("signInForNotifications")}</span></div>}
               </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CheckCircle2, CircleUserRound, LockKeyhole, Mail, Save, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { PageIntro } from "@/components/store-shell";
 import { useLanguage } from "@/components/language-provider";
+import { localizeCustomerError } from "@/components/customer-localization";
 
 export function ProfileClient() {
   const { t, language } = useLanguage();
@@ -51,7 +52,7 @@ export function ProfileClient() {
       setNewPassword("");
       setMessage(t("profileUpdated"));
     } catch (error: any) {
-      setMessage(error.message || "Could not update profile.");
+      setMessage(localizeCustomerError(error.message || "Could not update profile.",language,t));
     } finally {
       setSaving(false);
     }

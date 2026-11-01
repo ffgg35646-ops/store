@@ -6,6 +6,7 @@ import { CalendarDays, CheckCircle2, ChevronRight, Clock3, Package, PackageCheck
 import { money } from "@/components/product-card";
 import { PageIntro } from "@/components/store-shell";
 import { useLanguage } from "@/components/language-provider";
+import { localizeCustomerError } from "@/components/customer-localization";
 
 type OrderFilter = "all" | "active" | "completed" | "cancelled";
 
@@ -37,21 +38,21 @@ export function OrdersClient() {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/orders", { cache: "no-store" })
+    fetch(`/api/orders?lang=${language}`, { cache: "no-store" })
       .then(response => response.json())
       .then(data => {
         if (!active) return;
-        if (!Array.isArray(data.orders)) throw new Error(data.error || "Could not load orders.");
+        if (!Array.isArray(data.orders)) throw new Error(localizeCustomerError(data.error || "Could not load orders.",language,t));
         setOrders(data.orders);
       })
       .catch(error => {
-        if (active) setLoadError(error.message || "Could not load orders.");
+        if (active) setLoadError(localizeCustomerError(error.message || "Could not load orders.",language,t));
       })
       .finally(() => {
         if (active) setLoading(false);
       });
     return () => { active = false; };
-  }, []);
+  }, [language]);
 
   const activeCount = orders.filter(order => belongsToFilter(order.status, "active")).length;
   const completedCount = orders.filter(order => belongsToFilter(order.status, "completed")).length;

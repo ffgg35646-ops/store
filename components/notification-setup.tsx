@@ -36,7 +36,7 @@ export function NotificationSetup() {
       const subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:decodeKey(keyData.publicKey) as BufferSource});
       const response=await fetch("/api/push/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(subscription)});
       const data=await response.json();
-      if(!response.ok)throw new Error(data.error||"Could not enable notifications.");
+      if(!response.ok)throw new Error(t("couldNotEnableNotifications"));
       setEnabled(true);setMessage(t("browserNotificationsEnabled"));
     }catch(error:any){setMessage(error.message||t("couldNotEnableNotifications"));}
     finally{setBusy(false);}
