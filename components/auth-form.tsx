@@ -26,7 +26,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     try {
       const response = await fetch(`/api/auth/${mode}`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name,email,password,confirmPassword,next:safeNext}) });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Something went wrong.");
+      if (!response.ok) { const code = String(data.errorCode || ""); if (code.startsWith("smtp") && typeof t(code) === "string" && t(code) !== code) { let message = t(code); if (code === "smtpConfigMissing" && Array.isArray(data.missing)) message = message.replace("{settings}", data.missing.join(", ")); throw new Error(message); } throw new Error(data.error || "Something went wrong."); }
       if (mode === "register" && data.verificationRequired) { setVerificationSent(true); return; }
       const next = safeNext || "/account";
       router.replace(next); router.refresh();
