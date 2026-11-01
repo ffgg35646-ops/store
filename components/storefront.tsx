@@ -7,7 +7,7 @@ import { ProductCard } from "@/components/product-card";
 import { useLanguage } from "@/components/language-provider";
 
 export function Storefront({ initialQuery = "", initialCategory = "" }: { initialQuery?: string; initialCategory?: string }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [products, setProducts] = useState<any[]>(() => { try { return JSON.parse(sessionStorage.getItem("nova-products-cache") || "[]"); } catch { return []; } });
   const [categories, setCategories] = useState<any[]>(() => { try { return JSON.parse(sessionStorage.getItem("nova-categories-cache") || "[]"); } catch { return []; } });
   const [query, setQuery] = useState(initialQuery);
@@ -38,13 +38,13 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
   useEffect(() => {
     let active = true;
     Promise.all([
-      fetch("/api/products").then(r=>r.json()),
-      fetch("/api/categories").then(r=>r.json()),
+      fetch(`/api/products?lang=${language}`).then(r=>r.json()),
+      fetch(`/api/categories?lang=${language}`).then(r=>r.json()),
       fetch("/api/admin/settings").then(r=>r.json())
     ]).then(([p,c,s]) => { if (active) { setProducts(p.products || []); setCategories(c.categories || []); try { sessionStorage.setItem("nova-products-cache", JSON.stringify(p.products || [])); sessionStorage.setItem("nova-categories-cache", JSON.stringify(c.categories || [])); } catch {} setAnnouncement(s.settings?.announcement || ""); } })
       .catch(()=>{}).finally(()=>{ if(active) setLoading(false); });
     return ()=>{active=false;};
-  }, []);
+  }, [language]);
   const visible = products.filter(p => (!query || (p.title + " " + p.shortDescription).toLowerCase().includes(query.toLowerCase())) && (!category || String(p.categoryId?._id || p.categoryId) === category));
   const featured = visible.filter(p=>p.isFeatured);
   const top = featured.length ? featured : visible.slice(0,4);
