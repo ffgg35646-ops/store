@@ -20,9 +20,7 @@ export async function GET(request: NextRequest) {
   const products = await Product.find(filter).populate("categoryId", "name slug").sort({ sortOrder: 1, createdAt: -1 }).limit(100).lean();
   const personalDiscount = user?.role === "customer" ? Math.min(100, Math.max(0, Number(user.discountPercent || 0))) : 0;
   const now = new Date();
-  const campaigns = user?.role === "customer"
-    ? await Coupon.find({ active: true, autoApply: true, discountType: "percentage" }).lean()
-    : [];
+  const campaigns = await Coupon.find({ active: true, autoApply: true, discountType: "percentage" }).lean();
   const customerId = String(user?._id || "");
   const eligibleCampaigns = (campaigns as any[]).filter((campaign) => {
     if ((campaign.startsAt && campaign.startsAt > now) || (campaign.endsAt && campaign.endsAt < now)) return false;
