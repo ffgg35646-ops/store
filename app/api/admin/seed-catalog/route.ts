@@ -1,43 +1,60 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
-import { Category, Product } from "@/lib/models";
+import { Category } from "@/lib/models";
 import { getCurrentUser } from "@/lib/auth";
 import { slugify } from "@/lib/store";
 
 const starterCategories = [
-  "Streaming Accounts", "Gaming Accounts", "Social Media Accounts", "AI Tools & Accounts",
-  "Software & Utilities", "Music & Audio", "Design & Creative", "VPN & Security",
-  "Productivity Tools", "Gift Cards & Top-ups"
+  ["Apple ID & iCloud Accounts", "Apple IDs, iCloud accounts and Apple account services."],
+  ["Apple Music & TV", "Apple Music, Apple TV and Apple digital subscriptions."],
+  ["Netflix Accounts", "Netflix memberships and streaming plans."],
+  ["Shahid & Arabic Streaming", "Shahid and Arabic entertainment subscriptions."],
+  ["Streaming Services", "Disney+, Prime Video and other streaming services."],
+  ["Spotify & Music", "Music subscriptions and premium audio services."],
+  ["YouTube Premium", "YouTube Premium and related creator services."],
+  ["Gaming Accounts", "Gaming profiles, accounts and digital game access."],
+  ["PlayStation & Xbox", "Console memberships, online services and subscriptions."],
+  ["Game Gift Cards", "Gaming top-ups, wallet cards and digital codes."],
+  ["AI Tools & Accounts", "AI assistants, image tools and productivity subscriptions."],
+  ["Microsoft & Office", "Microsoft 365, Windows and Office products."],
+  ["Adobe & Creative Software", "Creative Cloud, editing and design software."],
+  ["VPN & Cybersecurity", "VPN, privacy, antivirus and security subscriptions."],
+  ["iPhone", "New and pre-owned iPhone devices and accessories."],
+  ["iPad & Tablets", "iPad devices, tablets and related accessories."],
+  ["MacBook & Laptops", "MacBook, Windows laptops and computing devices."],
+  ["Smartwatches & Wearables", "Apple Watch, smart bands and wearable devices."],
+  ["Home Appliances", "Home and kitchen electrical appliances."],
+  ["Electronics & Accessories", "Headphones, screens, chargers and consumer electronics."]
 ];
 
 export async function POST() {
   const admin = await getCurrentUser();
   if (admin?.role !== "admin") return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   await dbConnect();
+
   let categoriesCreated = 0;
-  let productsCreated = 0;
+  let categoriesUpdated = 0;
   for (let index = 0; index < starterCategories.length; index++) {
-    const name = starterCategories[index];
-    let category = await Category.findOne({ name });
-    if (!category) {
-      category = await Category.create({ name, slug: slugify(name), description: "Edit this category description in the admin dashboard.", sortOrder: index + 1, isActive: true });
-      categoriesCreated++;
+    const [name, description] = starterCategories[index];
+    const slug = slugify(name);
+    const existing = await Category.findOne({ slug });
+    if (existing) {
+      if (!existing.description) {
+        existing.description = description;
+        await existing.save();
+        categoriesUpdated++;
+      }
+      continue;
     }
-    for (let productIndex = 1; productIndex <= 10; productIndex++) {
-      const title = `${name} — Draft product ${String(productIndex).padStart(2, "0")}`;
-      if (await Product.exists({ title, categoryId: category._id })) continue;
-      const base = slugify(title);
-      let slug = base;
-      let suffix = 1;
-      while (await Product.exists({ slug })) slug = `${base}-${suffix++}`;
-      await Product.create({
-        title, slug, shortDescription: "Draft item — replace with the real product details before publishing.",
-        description: "This is an unpublished catalog placeholder. Add the real product name, images, price, delivery instructions and available stock before making it visible.",
-        categoryId: category._id, price: 0, currency: process.env.NEXT_PUBLIC_STORE_CURRENCY || "USD",
-        deliveryMode: "manual", isFeatured: false, isActive: false, sortOrder: productIndex
-      });
-      productsCreated++;
-    }
+    await Category.create({ name, slug, description, sortOrder: index + 1, isActive: true });
+    categoriesCreated++;
   }
-  return NextResponse.json({ success: true, categoriesCreated, productsCreated, message: `Starter catalog prepared: ${categoriesCreated} categories and ${productsCreated} unpublished draft products. Edit prices, images and details before publishing.` });
+
+  return NextResponse.json({
+    success: true,
+    categoriesCreated,
+    categoriesUpdated,
+    totalStarterCategories: starterCategories.length,
+    message: `Your 20 starter categories are ready. ${categoriesCreated} new categories were created. Add real product names, photos, prices, colors and stock from Product Catalog.`
+  });
 }
