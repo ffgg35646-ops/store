@@ -37,12 +37,12 @@ export function Storefront({ initialQuery = "", initialCategory = "" }: { initia
   useEffect(()=>{const timer=setInterval(()=>setHeroImageIndex(index=>(index+1)%heroImages.length),4500);return()=>clearInterval(timer);},[]);
   useEffect(() => {
     let active = true;
-    try { const cachedProducts = JSON.parse(sessionStorage.getItem("nova-products-cache") || "[]"); const cachedCategories = JSON.parse(sessionStorage.getItem("nova-categories-cache") || "[]"); if (cachedProducts.length) { setProducts(cachedProducts); setHasLoaded(true); } if (cachedCategories.length) setCategories(cachedCategories); } catch {}
+    try { const cachedProducts = JSON.parse(sessionStorage.getItem(`nova-products-cache-${language}`) || "[]"); const cachedCategories = JSON.parse(sessionStorage.getItem(`nova-categories-cache-${language}`) || "[]"); if (cachedProducts.length) { setProducts(cachedProducts); setHasLoaded(true); } if (cachedCategories.length) setCategories(cachedCategories); } catch {}
     Promise.all([
       fetch(`/api/products?lang=${language}`).then(r=>r.json()),
       fetch(`/api/categories?lang=${language}`).then(r=>r.json()),
       fetch("/api/admin/settings").then(r=>r.json())
-    ]).then(([p,c,s]) => { if (active) { setProducts(p.products || []); setCategories(c.categories || []); setHasLoaded(true); try { sessionStorage.setItem("nova-products-cache", JSON.stringify(p.products || [])); sessionStorage.setItem("nova-categories-cache", JSON.stringify(c.categories || [])); } catch {} setAnnouncement(s.settings?.announcement || ""); } })
+    ]).then(([p,c,s]) => { if (active) { setProducts(p.products || []); setCategories(c.categories || []); setHasLoaded(true); try { sessionStorage.setItem(`nova-products-cache-${language}`, JSON.stringify(p.products || [])); sessionStorage.setItem(`nova-categories-cache-${language}`, JSON.stringify(c.categories || [])); } catch {} setAnnouncement(s.settings?.announcement || ""); } })
       .catch(()=>{});
     return ()=>{active=false;};
   }, [language]);
