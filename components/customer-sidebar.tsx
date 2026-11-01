@@ -21,7 +21,6 @@ export function CustomerSidebar({ user }: { user: any }) {
   const [visibleCount, setVisibleCount] = useState(3);
   const [startIndex, setStartIndex] = useState(0);
   const [moreOpen, setMoreOpen] = useState(false);
-  if (!user || user.role !== "customer") return null;
 
   const labels: Record<string, [string, string]> = {
     catalog: ["الكتالوج", "Catalog"],
@@ -54,6 +53,8 @@ export function CustomerSidebar({ user }: { user: any }) {
     if (activeIndex >= 0) setStartIndex(Math.floor(activeIndex / visibleCount) * visibleCount);
     setMoreOpen(false);
   }, [pathname, visibleCount]);
+
+  if (!user || user.role !== "customer") return null;
 
   function movePage(direction: -1 | 1) {
     const nextPage = (currentPage + direction + pageCount) % pageCount;

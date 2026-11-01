@@ -698,7 +698,7 @@ html[dir=rtl] .profile-banner-label{right:auto;left:22px}
  .customer-bottom-arrow:disabled{opacity:.28}
  .customer-bottom-more{width:51px;min-width:51px;min-height:45px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;border-radius:10px;background:transparent;color:#aab2c4;font-size:9px;font-weight:700}
  .customer-bottom-more.active{background:#b58b4926;color:#e5c58f}
- .customer-more-backdrop{position:fixed;inset:0;z-index:-1;border:0;background:#080b1590}
+ .customer-more-backdrop{position:fixed;inset:0;z-index:1;border:0;background:#080b1590}.customer-bottom-arrow,.customer-bottom-links,.customer-bottom-more{position:relative;z-index:2}.customer-more-panel{z-index:3}
  .customer-more-panel{position:absolute;inset-inline-end:10px;bottom:calc(100% + 10px);width:min(310px,calc(100vw - 20px));padding:15px;background:#fff;border:1px solid #e7e9ee;border-radius:17px;box-shadow:0 16px 48px #080b1540;color:#252b39}
  .customer-more-heading{display:grid;gap:3px;padding:2px 3px 12px;border-bottom:1px solid #edf0f4}
  .customer-more-heading strong{font-size:13px}
