@@ -95,8 +95,10 @@ export async function POST() {
       isActive: false,
       price: 0,
       image: "",
-      shortDescription: "Draft item — add the real product details before publishing.",
-      description: draftDescription
+      $or: [
+        { shortDescription: "Draft item — add the real product details before publishing.", description: draftDescription },
+        { shortDescription: "Draft item — replace with the real product details before publishing.", description: "This is an unpublished catalog placeholder. Add the real product name, images, price, delivery instructions and available stock before making it visible." }
+      ]
     }).sort({ title: 1 }).lean();
 
     if (generated.length > targetCount) {
