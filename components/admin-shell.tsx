@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Activity, BadgePercent, Bell, Boxes, ChevronLeft, Gift, LayoutDashboard, LogOut, MessageCircle, Package, Settings, ShoppingCart, Users, Warehouse } from "lucide-react";
+import { BadgePercent, Bell, Boxes, ChevronLeft, Gift, LayoutDashboard, LogOut, Menu, MessageCircle, Package, Settings, ShoppingCart, Users, Warehouse, X } from "lucide-react";
 
 const nav = [
   {href:"/admin",label:"Overview",icon:LayoutDashboard},
@@ -27,9 +27,9 @@ export function AdminShell({children}:{children:React.ReactNode}) {
   async function logout(){await fetch("/api/auth/logout",{method:"POST"});router.push("/admin-login");}
   return <div className="admin-layout">
     <aside className={open?"admin-sidebar open":"admin-sidebar"}><Link href="/admin" className="admin-brand"><span className="brand-mark">N</span><span>NOVA <small>CONTROL CENTER</small></span></Link>
-      <div className="admin-nav-label">WORKSPACE</div><nav>{nav.map(item=>{const Icon=item.icon;return <Link key={item.href} href={item.href} onClick={()=>setOpen(false)} className={(item.href==="/admin"?pathname==="/admin":pathname.startsWith(item.href))?"active":""}><Icon size={17}/>{item.label}</Link>;})}</nav>
+      <div className="admin-nav-label">STORE MANAGEMENT</div><nav>{nav.map(item=>{const Icon=item.icon;return <Link key={item.href} href={item.href} onClick={()=>setOpen(false)} className={(item.href==="/admin"?pathname==="/admin":pathname.startsWith(item.href))?"active":""}><Icon size={17}/>{item.label}</Link>;})}</nav>
       <div className="admin-side-bottom"><div className="admin-user-mini"><span className="admin-avatar">{user?.name?.charAt(0)||"A"}</span><span><b>{user?.name||"Administrator"}</b><small>Store administrator</small></span></div><button onClick={logout}><LogOut size={16}/> Sign out</button><Link href="/"><ChevronLeft size={16}/> Back to store</Link></div>
     </aside>
-    <div className="admin-main"><header className="admin-topbar"><button className="mobile-toggle admin-menu-toggle" onClick={()=>setOpen(!open)} aria-label="Menu"><Activity/></button><div><span className="eyebrow">NOVA DIGITAL / ADMIN</span><b>{nav.find(n=>n.href===pathname)?.label||"Control center"}</b></div><div className="admin-top-actions"><span className="admin-status-dot"/> All systems operational<Link href="/" target="_blank">View store ↗</Link></div></header><div className="admin-content">{children}</div></div>
+    <div className="admin-main"><header className="admin-topbar"><button className="mobile-toggle admin-menu-toggle" onClick={()=>setOpen(!open)} aria-label={open?"Close menu":"Open menu"} aria-expanded={open}>{open?<X size={18}/>:<Menu size={18}/>}</button><div><span className="eyebrow">NOVA DIGITAL / STORE ADMIN</span><b>{nav.find(n=>n.href===pathname)?.label||"Control center"}</b></div><div className="admin-top-actions"><span className="admin-status-dot"/> All systems operational<Link href="/" target="_blank">View store ↗</Link></div></header><div className="admin-content">{children}</div></div>
   </div>;
 }
