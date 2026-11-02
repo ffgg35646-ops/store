@@ -9,6 +9,7 @@ import { ChatClient } from "@/components/chat-client";
 
 const labels:any={overview:"نظرة عامة على المتجر",products:"كتالوج المنتجات",categories:"أقسام المتجر",inventory:"المخزون الرقمي",orders:"إدارة الطلبات",users:"إدارة العملاء",coupons:"الخصومات والكوبونات",rewards:"مكافآت العملاء",notifications:"مركز إشعارات العملاء",settings:"إعدادات المتجر",messages:"رسائل العملاء"};
 const emptyForm:any={};
+const invalidCouponCodeMessage="من فضلك اكتب كود الخصم بطريقة صحيحة. أمثلة: WELCOME10، SAVE20، SUMMER25، NEWUSER5، VIP2026. استخدم من 3 إلى 40 حرفًا أو رقمًا، ويمكنك استخدام الشرطة (-) أو (_). أو فعّل خيار «تطبيق الخصم تلقائيًا عند الدفع» واترك خانة الكود فارغة.";
 const statusLabel=(value:any)=>({awaiting_payment:"بانتظار الدفع",processing:"قيد المعالجة",delivered:"تم التسليم",shipped:"تم الشحن",completed:"مكتمل",cancelled:"ملغي",refunded:"مسترد",paid:"مدفوع",pending:"معلق",failed:"فشل",active:"نشط",suspended:"موقوف",available:"متاح",issued:"تم استخدامه",percentage:"نسبة مئوية",fixed:"مبلغ ثابت",chat:"دردشة",system:"نظام",order:"طلب",payment:"دفع",delivery:"تسليم",promotion:"عرض ترويجي",reward:"مكافأة",wallet:"المحفظة",stripe:"بطاقة بنكية",manual:"يدوي"} as Record<string,string>)[String(value)]||value;
 
 export function AdminPanel({section="overview"}:{section:string}) {
@@ -90,6 +91,12 @@ export function AdminPanel({section="overview"}:{section:string}) {
   }
   async function saveEntity(e:React.FormEvent) {
     e.preventDefault();
+    if(section==="coupons"){
+      const code=String(form.code||"").trim().toUpperCase().replace(/\s+/g,"");
+      if(!form.autoApply&&!/^[A-Z0-9_-]{3,40}$/.test(code)){setError(invalidCouponCodeMessage);setResult("");return;}
+      if(code&&!/^[A-Z0-9_-]{3,40}$/.test(code)){setError(invalidCouponCodeMessage);setResult("");return;}
+      form.code=code;
+    }
     if(section==="products"){
       const payload={...form,gallery:String(form.galleryUrls??"").split(",").map((url:string)=>url.trim()).filter(Boolean),colors:String(form.colorOptions??"").split(",").map((value:string)=>{const [name,hex]=value.split(":");return {name:String(name||"").trim(),hex:String(hex||"#777777").trim()};}).filter((color:any)=>color.name),price:Number(form.price),compareAtPrice:Number(form.compareAtPrice||0),isFeatured:Boolean(form.isFeatured),isActive:form.isActive!==false};
       const d=await api(selected?`/api/products/${selected._id}`:"/api/products",selected?"PATCH":"POST",payload);if(d)clearForm(true);
@@ -99,7 +106,7 @@ export function AdminPanel({section="overview"}:{section:string}) {
       const payload={...form,value:Number(form.value),minOrder:Number(form.minOrder||0),maxDiscount:Number(form.maxDiscount||0),usageLimit:Number(form.usageLimit||0),targetType:"all",targetAllProducts:form.targetAllProducts!==false,targetUserIds:selectedUsers,targetProductIds:selectedProducts,targetCategoryIds:selectedCategories,autoApply:Boolean(form.autoApply)};
       const d=await api(selected?`/api/admin/coupons/${selected._id}`:"/api/admin/coupons",selected?"PATCH":"POST",payload);if(d)clearForm(true);
     }else if(section==="settings"){
-      const d=await api("/api/admin/settings","PATCH",form);if(d)setResult("تم حفظ إعدادات المتجر.");
+      const d=await api("/api/admin/settings","PATCH",form);if(d)setResult("تم التعديل بنجاح.");
     }else if(section==="inventory"){
       const d=await api("/api/inventory","POST",form);if(d){setForm({productId:form.productId,values:""});setResult(`تمت إضافة ${d.added} عنصر إلى المخزون.`);}
     }else if(section==="notifications"){
