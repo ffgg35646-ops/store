@@ -15,7 +15,8 @@ export function ChatClient({ adminMode=false }: {adminMode?:boolean}) {
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
   const [user,setUser]=useState<any>(null);
-  const [initialConversationLoaded,setInitialConversationLoaded]=useState(false);\n  const copy=(english:string,arabic:string)=>adminMode?arabic:localizeCustomerCopy(english,language);
+  const [initialConversationLoaded,setInitialConversationLoaded]=useState(false);
+  const copy=(english:string,arabic:string)=>adminMode?arabic:localizeCustomerCopy(english,language);
   async function loadConversations() {
     const [c,u]=await Promise.all([fetch("/api/chat").then(r=>r.json()),fetch("/api/auth/me").then(r=>r.json())]);
     setConversations(c.conversations||[]);setUser(u.user);
