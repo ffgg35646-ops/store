@@ -29,11 +29,21 @@ export async function POST(request: NextRequest) {
   const targetCategoryIds = cleanIds(body.targetCategoryIds);
   const targetAllProducts = body.targetAllProducts !== false;
 
-  if (!/^[A-Z0-9_-]{3,40}$/.test(code) || !Number.isFinite(value) || value <= 0 || (discountType === "percentage" && value > 100)) {
-    return NextResponse.json({ error: "Enter a valid code (or enable automatic application) and discount value." }, { status: 400 });
+  if (!/^[A-Z0-9_-]{3,40}$/.test(code)) {
+    return NextResponse.json({
+      error: autoApply
+        ? "كود الخصم غير صالح. استخدم من 3 إلى 40 حرفًا أو رقمًا، ويمكنك استخدام الشرطة - أو _."
+        : "أدخل كود خصم مثل WELCOME10، أو فعّل خيار «تطبيق الخصم تلقائيًا عند الدفع» واترك خانة الكود فارغة."
+    }, { status: 400 });
+  }
+  if (!Number.isFinite(value) || value <= 0) {
+    return NextResponse.json({ error: "أدخل قيمة الخصم في خانة «القيمة» بجوار «نوع الخصم»، ويجب أن تكون أكبر من صفر." }, { status: 400 });
+  }
+  if (discountType === "percentage" && value > 100) {
+    return NextResponse.json({ error: "عند اختيار «نسبة مئوية»، يجب ألا تزيد القيمة عن 100." }, { status: 400 });
   }
   if (!targetAllProducts && targetProductIds.length === 0 && targetCategoryIds.length === 0) {
-    return NextResponse.json({ error: "Choose at least one product or category, or enable all products." }, { status: 400 });
+    return NextResponse.json({ error: "اختر منتجًا واحدًا أو قسمًا واحدًا على الأقل، أو فعّل «تطبيق الخصم على جميع المنتجات»." }, { status: 400 });
   }
   if (body.startsAt && Number.isNaN(new Date(body.startsAt).getTime())) return NextResponse.json({ error: "Invalid start date." }, { status: 400 });
   if (body.endsAt && Number.isNaN(new Date(body.endsAt).getTime())) return NextResponse.json({ error: "Invalid end date." }, { status: 400 });
@@ -61,7 +71,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ coupon }, { status: 201 });
   } catch (error: any) {
-    if (error?.code === 11000) return NextResponse.json({ error: "This discount code already exists." }, { status: 409 });
+    if (error?.code === 11000) return NextResponse.json({ error: "كود الخصم مستخدم بالفعل. اختر كودًا مختلفًا." }, { status: 409 });
     console.error("create coupon", error);
     return NextResponse.json({ error: "Unable to create this discount." }, { status: 500 });
   }

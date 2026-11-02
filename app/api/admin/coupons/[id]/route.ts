@@ -22,14 +22,14 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   if (body.value !== undefined) {
     const value = Number(body.value);
     if (!Number.isFinite(value) || value <= 0 || (nextType !== "fixed" && value > 100)) {
-      return NextResponse.json({ error: "Enter a valid discount value. Percentage discounts must be 100 or less." }, { status: 400 });
+      return NextResponse.json({ error: nextType === "fixed" ? "أدخل مبلغ خصم أكبر من صفر في خانة «القيمة»." : "أدخل نسبة خصم أكبر من صفر ولا تتجاوز 100 في خانة «القيمة»." }, { status: 400 });
     }
     update.value = value;
   }
   if (body.code !== undefined) {
     const code = String(body.code || "").trim().toUpperCase().replace(/\s+/g, "");
     if (code) {
-      if (!/^[A-Z0-9_-]{3,40}$/.test(code)) return NextResponse.json({ error: "Discount codes must be 3–40 letters or numbers." }, { status: 400 });
+      if (!/^[A-Z0-9_-]{3,40}$/.test(code)) return NextResponse.json({ error: "كود الخصم يجب أن يتكون من 3 إلى 40 حرفًا أو رقمًا، ويمكن استخدام - أو _." }, { status: 400 });
       update.code = code;
     }
   }
@@ -49,7 +49,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   const categoryTargets = update.targetCategoryIds ?? existing.targetCategoryIds ?? [];
   const legacyTargets = existing.targetType === "products" || existing.targetType === "categories" ? (update.targetIds ?? existing.targetIds ?? []) : [];
   if (!targetAllProducts && !productTargets.length && !categoryTargets.length && !legacyTargets.length) {
-    return NextResponse.json({ error: "Choose at least one product or category, or enable all products." }, { status: 400 });
+    return NextResponse.json({ error: "اختر منتجًا واحدًا أو قسمًا واحدًا على الأقل، أو فعّل «تطبيق الخصم على جميع المنتجات»." }, { status: 400 });
   }
   if (body.startsAt && body.endsAt && new Date(body.endsAt) < new Date(body.startsAt)) {
     return NextResponse.json({ error: "The end date must be after the start date." }, { status: 400 });
@@ -60,7 +60,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     if (!coupon) return NextResponse.json({ error: "Discount not found." }, { status: 404 });
     return NextResponse.json({ coupon });
   } catch (error: any) {
-    if (error?.code === 11000) return NextResponse.json({ error: "This discount code already exists." }, { status: 409 });
+    if (error?.code === 11000) return NextResponse.json({ error: "كود الخصم مستخدم بالفعل. اختر كودًا مختلفًا." }, { status: 409 });
     console.error("update coupon", error);
     return NextResponse.json({ error: "Unable to update this discount." }, { status: 500 });
   }
