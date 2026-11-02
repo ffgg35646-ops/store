@@ -724,3 +724,55 @@ html[dir=rtl] .profile-banner-label{right:auto;left:22px}
 @media(min-width:901px){
  .customer-bottom-nav{display:none}
 }
+
+
+/* Arabic administrator workspace and live support-message bell */
+.admin-layout[dir="rtl"]{direction:rtl}
+.admin-layout[dir="rtl"] .admin-sidebar{grid-column:1;grid-row:1}
+.admin-layout[dir="rtl"] .admin-main{grid-column:2;grid-row:1;min-width:0}
+.admin-layout[dir="rtl"] .admin-brand,.admin-layout[dir="rtl"] .admin-sidebar nav a,.admin-layout[dir="rtl"] .admin-side-bottom>button,.admin-layout[dir="rtl"] .admin-side-bottom>a{direction:rtl;text-align:right}
+.admin-layout[dir="rtl"] .admin-nav-label{text-align:right;letter-spacing:0}
+.admin-layout[dir="rtl"] .admin-topbar{direction:rtl}
+.admin-layout[dir="rtl"] .admin-top-title{display:flex;align-items:center;gap:12px}
+.admin-layout[dir="rtl"] .admin-top-actions{direction:rtl}
+.admin-layout[dir="rtl"] .admin-top-actions a{margin-left:0;margin-right:8px}
+.admin-layout[dir="rtl"] .admin-form-card,.admin-layout[dir="rtl"] .admin-list-card,.admin-layout[dir="rtl"] .admin-modal{text-align:right}
+.admin-layout[dir="rtl"] .admin-form-card label{text-align:right}
+.admin-layout[dir="rtl"] .admin-form-card input,.admin-layout[dir="rtl"] .admin-form-card select,.admin-layout[dir="rtl"] .admin-form-card textarea{direction:rtl;text-align:right}
+.admin-layout[dir="rtl"] .admin-list-search{direction:rtl}
+.admin-layout[dir="rtl"] .admin-record,.admin-layout[dir="rtl"] .admin-user-row,.admin-layout[dir="rtl"] .admin-order-card-head{direction:rtl}
+.admin-layout[dir="rtl"] .admin-alert{direction:rtl;text-align:right}
+.admin-layout[dir="rtl"] .admin-alert button{margin-left:0;margin-right:auto}
+.admin-layout[dir="rtl"] .admin-bell-wrap{position:relative;display:flex;align-items:center}
+.admin-layout[dir="rtl"] .admin-bell{position:relative;width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:#fff;color:#646b79}
+.admin-layout[dir="rtl"] .admin-bell.has-unread{color:var(--accent);border-color:#d8d1ff;background:#f7f5ff}
+.admin-layout[dir="rtl"] .admin-bell-count{position:absolute;top:-7px;left:-7px;min-width:17px;height:17px;padding:0 4px;border:2px solid #fff;border-radius:99px;background:#ec5266;color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center}
+.admin-layout[dir="rtl"] .admin-bell-panel{position:absolute;z-index:80;top:46px;left:0;width:340px;max-width:calc(100vw - 26px);background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 50px #1e233729;overflow:hidden;color:var(--ink);text-align:right}
+.admin-layout[dir="rtl"] .admin-bell-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border-bottom:1px solid var(--line)}
+.admin-layout[dir="rtl"] .admin-bell-heading b,.admin-layout[dir="rtl"] .admin-bell-heading small{display:block}
+.admin-layout[dir="rtl"] .admin-bell-heading b{font-size:12px}
+.admin-layout[dir="rtl"] .admin-bell-heading small{font-size:9px;color:var(--muted);margin-top:3px}
+.admin-layout[dir="rtl"] .admin-bell-heading button{width:27px;height:27px;display:grid;place-items:center;border:0;background:#f4f5f8;color:#727987;border-radius:7px}
+.admin-layout[dir="rtl"] .admin-bell-list{max-height:330px;overflow:auto}
+.admin-layout[dir="rtl"] .admin-bell-item{display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid #f0f1f4;text-align:right}
+.admin-layout[dir="rtl"] .admin-bell-item:hover{background:#faf9ff}
+.admin-layout[dir="rtl"] .admin-bell-avatar{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:10px;background:#efedff;color:var(--accent);font-weight:800}
+.admin-layout[dir="rtl"] .admin-bell-copy{display:grid;gap:3px;flex:1;min-width:0}
+.admin-layout[dir="rtl"] .admin-bell-copy b{font-size:10px}
+.admin-layout[dir="rtl"] .admin-bell-copy span{font-size:9px;color:#687181;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-layout[dir="rtl"] .admin-bell-copy small{font-size:8px;color:#9aa1ad}
+.admin-layout[dir="rtl"] .admin-bell-item i{font-size:9px;font-style:normal;color:var(--accent);font-weight:800}
+.admin-layout[dir="rtl"] .admin-bell-empty{min-height:115px;display:grid;place-content:center;justify-items:center;gap:8px;color:#9097a4;font-size:10px}
+.admin-layout[dir="rtl"] .admin-bell-footer{display:flex;justify-content:center;padding:12px;border-top:1px solid var(--line);font-size:10px;font-weight:800;color:var(--accent)}
+.admin-layout[dir="rtl"] .admin-chat-wrap .chat-side-heading,.admin-layout[dir="rtl"] .admin-chat-wrap .conversation-item,.admin-layout[dir="rtl"] .admin-chat-wrap .chat-window-head,.admin-layout[dir="rtl"] .admin-chat-wrap .chat-compose{direction:rtl}
+.admin-layout[dir="rtl"] .admin-chat-wrap .conversation-item{text-align:right}
+.admin-layout[dir="rtl"] .admin-chat-wrap .message-bubble{text-align:right}
+@media(max-width:760px){
+ .admin-layout[dir="rtl"] .admin-sidebar{left:auto;right:-260px;transition:right .25s;box-shadow:-10px 0 30px #0002}
+ .admin-layout[dir="rtl"] .admin-sidebar.open{left:auto;right:0}
+ .admin-layout[dir="rtl"] .admin-top-actions .admin-system-label{display:none}
+ .admin-layout[dir="rtl"] .admin-bell-panel{left:0;right:auto}
+ .admin-layout[dir="rtl"] .admin-top-title{min-width:0}
+ .admin-layout[dir="rtl"] .admin-top-title>div{min-width:0}
+ .admin-layout[dir="rtl"] .admin-top-title b{font-size:12px}
+}
