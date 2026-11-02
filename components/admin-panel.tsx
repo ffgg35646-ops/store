@@ -59,7 +59,7 @@ export function AdminPanel({section="overview"}:{section:string}) {
   async function uploadImage(file:File,field:"image",folder:"products"|"categories"){
     setUploading(true);setError("");setResult("");
     try{
-      const blob=await upload(`${folder}/${file.name}`,file,{access:"public",handleUploadUrl:"/api/admin/upload",addRandomSuffix:true});
+      const blob=await upload(`${folder}/${file.name}`,file,{access:"public",handleUploadUrl:"/api/admin/upload"});
       setForm((current:any)=>({...current,[field]:blob.url}));
       setResult("تم رفع الصورة بنجاح.");
     }catch(error:any){
