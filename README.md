@@ -85,6 +85,7 @@ Subscribe to `checkout.session.completed` and `checkout.session.expired`. Use St
 | `NEXT_PUBLIC_SITE_URL` | Yes in production | Canonical site URL used for payment return URLs |
 | `NEXT_PUBLIC_STORE_NAME` | No | Public store name fallback |
 | `NEXT_PUBLIC_STORE_CURRENCY` | No | Default catalog currency (for example USD) |
+| `BLOB_READ_WRITE_TOKEN` | Required for image uploads | Vercel Blob token for public product/category image storage |
 | `ADMIN_EMAIL` | For seed | First administrator email |
 | `ADMIN_PASSWORD` | For seed | First administrator password (12+ chars) |
 | `ADMIN_NAME` | No | First administrator display name |
@@ -111,7 +112,7 @@ The GitHub Actions workflow runs dependency installation and a production build 
 ## Important operational notes
 
 - Configure real payment credentials and a production MongoDB database before taking live payments.
-- Add a persistent image/CDN provider before enabling direct image uploads; this version accepts image URLs in the admin product/category forms.
+- Product and category images are uploaded as files to a public Vercel Blob store. Connect a public Blob store to the Vercel project so `BLOB_READ_WRITE_TOKEN` is available in Production and Preview. The admin upload route restricts uploads to image formats and a 10 MB maximum; product gallery images use the same store.
 - In-app notifications and chat refresh while the customer/admin pages are open. Browser push is opt-in per customer and works after VAPID keys are configured. Password reset emails require SMTP configuration; in-app notifications do not require SMTP.
 - The store uses one configured display currency. Configure Stripe-supported currency and product pricing consistently before enabling card checkout.
 - Refunds for wallet orders return funds to the customer wallet. Stripe refunds are sent through Stripe. Manual-transfer refunds must be completed using the original transfer channel by the operator.
