@@ -95,7 +95,6 @@ export function AdminPanel({section="overview"}:{section:string}) {
       const code=String(form.code||"").trim().toUpperCase().replace(/\s+/g,"");
       if(!form.autoApply&&!/^[A-Z0-9_-]{3,40}$/.test(code)){setError(invalidCouponCodeMessage);setResult("");return;}
       if(code&&!/^[A-Z0-9_-]{3,40}$/.test(code)){setError(invalidCouponCodeMessage);setResult("");return;}
-      form.code=code;
     }
     if(section==="products"){
       const payload={...form,gallery:String(form.galleryUrls??"").split(",").map((url:string)=>url.trim()).filter(Boolean),colors:String(form.colorOptions??"").split(",").map((value:string)=>{const [name,hex]=value.split(":");return {name:String(name||"").trim(),hex:String(hex||"#777777").trim()};}).filter((color:any)=>color.name),price:Number(form.price),compareAtPrice:Number(form.compareAtPrice||0),isFeatured:Boolean(form.isFeatured),isActive:form.isActive!==false};
