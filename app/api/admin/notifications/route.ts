@@ -34,7 +34,7 @@ export async function GET() {
       return {
         ...item,
         recipientCount: allCustomers ? customers : targeted || direct,
-        recipientLabel: allCustomers ? "All active customers" : item.userId?.name || (targeted ? `${targeted} selected customers` : "No recipients"),
+        recipientLabel: allCustomers ? "جميع العملاء النشطين" : item.userId?.name || (targeted ? `${targeted} عملاء محددون` : "لا يوجد مستلمون"),
         readCount: Array.isArray(item.readBy) ? item.readBy.length : 0
       };
     }),
