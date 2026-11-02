@@ -14,10 +14,12 @@ export function ChatClient({ adminMode=false }: {adminMode?:boolean}) {
   const [text,setText]=useState("");
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
-  const [user,setUser]=useState<any>(null);\n  const [initialConversationLoaded,setInitialConversationLoaded]=useState(false);\n  const copy=(english:string,arabic:string)=>adminMode?arabic:localizeCustomerCopy(english,language);
+  const [user,setUser]=useState<any>(null);
+  const [initialConversationLoaded,setInitialConversationLoaded]=useState(false);\n  const copy=(english:string,arabic:string)=>adminMode?arabic:localizeCustomerCopy(english,language);
   async function loadConversations() {
     const [c,u]=await Promise.all([fetch("/api/chat").then(r=>r.json()),fetch("/api/auth/me").then(r=>r.json())]);
-    setConversations(c.conversations||[]);setUser(u.user);\n    if(adminMode&&!initialConversationLoaded){const requestedId=new URLSearchParams(window.location.search).get("conversation");const requested=(c.conversations||[]).find((item:any)=>String(item._id)===requestedId);if(requested){setInitialConversationLoaded(true);await openConversation(requested);}else if(requestedId)setInitialConversationLoaded(true);}
+    setConversations(c.conversations||[]);setUser(u.user);
+    if(adminMode&&!initialConversationLoaded){const requestedId=new URLSearchParams(window.location.search).get("conversation");const requested=(c.conversations||[]).find((item:any)=>String(item._id)===requestedId);if(requested){setInitialConversationLoaded(true);await openConversation(requested);}else if(requestedId)setInitialConversationLoaded(true);}
   }
   async function openConversation(conversation:any) {
     setSelected(conversation);

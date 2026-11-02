@@ -7,7 +7,8 @@ import { money } from "@/components/product-card";
 import { ChatClient } from "@/components/chat-client";
 
 const labels:any={overview:"Business overview",products:"Product catalog",categories:"Store categories",inventory:"Digital inventory",orders:"Order management",users:"Customer management",coupons:"Discounts & coupons",rewards:"Customer rewards",notifications:"Notification center",settings:"Store settings",messages:"Customer messages"};
-const emptyForm:any={};\nconst statusLabel=(value:any)=>({awaiting_payment:"بانتظار الدفع",processing:"قيد المعالجة",delivered:"تم التسليم",shipped:"تم الشحن",completed:"مكتمل",cancelled:"ملغي",refunded:"مسترد",paid:"مدفوع",pending:"معلق",failed:"فشل",active:"نشط",suspended:"موقوف",available:"متاح",issued:"تم استخدامه",percentage:"نسبة مئوية",fixed:"مبلغ ثابت",chat:"دردشة",system:"نظام",order:"طلب",payment:"دفع",delivery:"تسليم",promotion:"عرض ترويجي",reward:"مكافأة",wallet:"المحفظة",stripe:"بطاقة بنكية",manual:"يدوي"} as Record<string,string>)[String(value)]||value;
+const emptyForm:any={};
+const statusLabel=(value:any)=>({awaiting_payment:"بانتظار الدفع",processing:"قيد المعالجة",delivered:"تم التسليم",shipped:"تم الشحن",completed:"مكتمل",cancelled:"ملغي",refunded:"مسترد",paid:"مدفوع",pending:"معلق",failed:"فشل",active:"نشط",suspended:"موقوف",available:"متاح",issued:"تم استخدامه",percentage:"نسبة مئوية",fixed:"مبلغ ثابت",chat:"دردشة",system:"نظام",order:"طلب",payment:"دفع",delivery:"تسليم",promotion:"عرض ترويجي",reward:"مكافأة",wallet:"المحفظة",stripe:"بطاقة بنكية",manual:"يدوي"} as Record<string,string>)[String(value)]||value;
 
 export function AdminPanel({section="overview"}:{section:string}) {
   const [data,setData]=useState<any[]>([]);
