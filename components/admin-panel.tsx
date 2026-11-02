@@ -72,7 +72,7 @@ export function AdminPanel({section="overview"}:{section:string}) {
     if(!selectedFiles.length)return;
     setUploading(true);setError("");setResult("");
     try{
-      const uploaded=await Promise.all(selectedFiles.map(file=>upload(`products/${file.name}`,file,{access:"public",handleUploadUrl:"/api/admin/upload",addRandomSuffix:true})));
+      const uploaded=await Promise.all(selectedFiles.map(file=>upload(`products/${file.name}`,file,{access:"public",handleUploadUrl:"/api/admin/upload"})));
       const existing=String(form.galleryUrls??"").split(",").map((url:string)=>url.trim()).filter(Boolean);
       setForm((current:any)=>({...current,galleryUrls:[...existing,...uploaded.map(blob=>blob.url)].join(", ")}));
       setResult(`تم رفع ${uploaded.length} صورة بنجاح.`);
