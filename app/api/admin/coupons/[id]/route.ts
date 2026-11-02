@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   if (body.code !== undefined) {
     const code = String(body.code || "").trim().toUpperCase().replace(/\s+/g, "");
     if (code) {
-      if (!/^[A-Z0-9_-]{3,40}$/.test(code)) return NextResponse.json({ error: "كود الخصم يجب أن يتكون من 3 إلى 40 حرفًا أو رقمًا، ويمكن استخدام - أو _." }, { status: 400 });
+      if (!/^[A-Z0-9_-]{3,40}$/.test(code)) return NextResponse.json({ error: "من فضلك اكتب كود الخصم بطريقة صحيحة. أمثلة: WELCOME10، SAVE20، SUMMER25، NEWUSER5، VIP2026. استخدم من 3 إلى 40 حرفًا أو رقمًا، ويمكنك استخدام الشرطة (-) أو (_). أو فعّل خيار «تطبيق الخصم تلقائيًا عند الدفع» واترك خانة الكود فارغة." }, { status: 400 });
       update.code = code;
     }
   }
