@@ -776,3 +776,12 @@ html[dir=rtl] .profile-banner-label{right:auto;left:22px}
  .admin-layout[dir="rtl"] .admin-top-title>div{min-width:0}
  .admin-layout[dir="rtl"] .admin-top-title b{font-size:12px}
 }
+
+.admin-auth-card[dir="rtl"]{direction:rtl;text-align:right}
+.admin-auth-card[dir="rtl"] .field>span{text-align:right}
+.admin-auth-card[dir="rtl"] .input-wrap{direction:rtl}
+.admin-auth-card[dir="rtl"] .input-wrap>svg{right:13px;left:auto}
+.admin-auth-card[dir="rtl"] .input-wrap input{padding-left:42px;padding-right:40px;text-align:right}
+.admin-auth-card[dir="rtl"] .input-action{left:8px;right:auto}
+.admin-auth-card[dir="rtl"] .auth-safe,.admin-auth-card[dir="rtl"] .auth-switch{justify-content:center;direction:rtl}
+.admin-auth-card[dir="rtl"] .button{direction:rtl}

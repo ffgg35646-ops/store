@@ -25,31 +25,31 @@ export function AdminLoginForm() {
         body: JSON.stringify({ email, password })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Administrator sign-in failed.");
+      if (!response.ok) throw new Error(data.error || "فشل تسجيل دخول الإدارة.");
       const next = params.get("next");
       router.replace(next?.startsWith("/admin/") ? next : "/admin");
       router.refresh();
     } catch (err: any) {
-      setError(err.message || "Unable to sign in.");
+      setError(err.message || "تعذر تسجيل الدخول.");
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="auth-card admin-auth-card">
+    <div className="auth-card admin-auth-card" dir="rtl">
       <div className="auth-logo"><span className="brand-mark">N</span></div>
-      <span className="eyebrow">NOVA DIGITAL · SECURE ACCESS</span>
-      <h1>Administrator sign in</h1>
-      <p>Sign in with an administrator account to manage products, customers and discounts.</p>
+      <span className="eyebrow">NOVA DIGITAL · دخول آمن</span>
+      <h1>تسجيل دخول الإدارة</h1>
+      <p>سجّل الدخول بحساب الإدارة لإدارة المنتجات والعملاء والخصومات.</p>
       <form onSubmit={submit} className="form-stack">
-        <label className="field"><span>Administrator email</span><div className="input-wrap"><Mail size={17}/><input type="email" autoComplete="username" required value={email} onChange={event=>setEmail(event.target.value)} placeholder="admin@example.com"/></div></label>
-        <label className="field"><span>Password</span><div className="input-wrap"><LockKeyhole size={17}/><input type={showPassword?"text":"password"} autoComplete="current-password" required value={password} onChange={event=>setPassword(event.target.value)} placeholder="Enter your password"/><button type="button" className="input-action" onClick={()=>setShowPassword(value=>!value)} aria-label={showPassword?"Hide password":"Show password"}>{showPassword?<EyeOff size={17}/>:<Eye size={17}/>}</button></div></label>
+        <label className="field"><span>البريد الإلكتروني للإدارة</span><div className="input-wrap"><Mail size={17}/><input type="email" autoComplete="username" required value={email} onChange={event=>setEmail(event.target.value)} placeholder="admin@example.com"/></div></label>
+        <label className="field"><span>كلمة المرور</span><div className="input-wrap"><LockKeyhole size={17}/><input type={showPassword?"text":"password"} autoComplete="current-password" required value={password} onChange={event=>setPassword(event.target.value)} placeholder="أدخل كلمة المرور"/><button type="button" className="input-action" onClick={()=>setShowPassword(value=>!value)} aria-label={showPassword?"إخفاء كلمة المرور":"إظهار كلمة المرور"}>{showPassword?<EyeOff size={17}/>:<Eye size={17}/>}</button></div></label>
         {error&&<div className="form-error">{error}</div>}
-        <button disabled={busy} className="button button-primary button-wide">{busy?"Signing in...":"Enter dashboard"} <ArrowRight size={17}/></button>
+        <button disabled={busy} className="button button-primary button-wide">{busy?"جارٍ تسجيل الدخول...":"دخول لوحة التحكم"} <ArrowRight size={17}/></button>
       </form>
       <div className="auth-safe"><ShieldCheck size={14}/> Administrator-only access</div>
-      <div className="auth-switch"><Link href="/">Back to store</Link></div>
+      <div className="auth-switch"><Link href="/">العودة إلى المتجر</Link></div>
     </div>
   );
 }
