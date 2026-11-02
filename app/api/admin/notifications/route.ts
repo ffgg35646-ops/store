@@ -7,7 +7,7 @@ export async function GET() {
   const admin = await getCurrentUser();
   if (admin?.role !== "admin") return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   await dbConnect();
-  const [notifications, customers, supportMessages] = await Promise.all([
+  const [notifications, customers, supportMessages, unreadTotals] = await Promise.all([
     Notification.find()
       .sort({ createdAt: -1 })
       .limit(100)
@@ -20,7 +20,11 @@ export async function GET() {
       .populate("userId", "name email")
       .sort({ lastMessageAt: -1 })
       .limit(30)
-      .lean()
+      .lean(),
+    Conversation.aggregate([
+      { $match: { status: "open", adminUnread: { $gt: 0 } } },
+      { $group: { _id: null, total: { $sum: "$adminUnread" } } }
+    ])
   ]);
   return NextResponse.json({
     notifications: notifications.map((item: any) => {
@@ -35,6 +39,6 @@ export async function GET() {
       };
     }),
     supportMessages,
-    unreadSupportCount: supportMessages.reduce((total: number, conversation: any) => total + Number(conversation.adminUnread || 0), 0)
+    unreadSupportCount: Number(unreadTotals[0]?.total || 0)
   });
 }
